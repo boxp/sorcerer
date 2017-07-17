@@ -11,7 +11,20 @@
                  [ring/ring-json "0.4.0"]
                  [compojure "1.6.0"]
                  [cheshire "5.7.1"]
-                 [org.clojure/tools.namespace "0.2.10"]]
+                 [circleci/clj-yaml "0.5.5"]
+                 [org.clojure/tools.namespace "0.2.10"]
+                 [io.fabric8/kubernetes-client "2.5.6"]
+                 [io.fabric8/kubernetes-model "1.1.0"]
+                 [com.google.guava/guava "22.0"]
+                 [com.google.auth/google-auth-library-oauth2-http "0.6.1"]
+                 [com.google.auth/google-auth-library-credentials "0.6.1"]
+                 [com.google.cloud/google-cloud-pubsub "0.20.1-beta"
+                  :exclusions [com.google.auth/google-auth-library-oauth2-http
+                               com.google.auth/google-auth-library-credentials
+                               com.google.guava/guava]]
+                 [com.google.apis/google-api-services-cloudbuild "v1-rev597-1.22.0"
+                  :exclusions [com.google.guava/guava
+                               com.google.guava/guava-jdk5]]]
   :profiles
   {:dev {:source-paths ["src" "dev"]}
    :uberjar {:main puppeteer.system}})

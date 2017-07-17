@@ -17,5 +17,3 @@ spec:
         env:
           - name: PUPPETEER_MY_WEBAPP_PORT
             value: 8080
-          - name: PUPPETEER_EXAMPLE_PORT
-            value: 8000

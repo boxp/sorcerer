@@ -1,34 +1,37 @@
 (ns puppeteer.system
   (:require [com.stuartsierra.component :as component]
             [environ.core :refer [env]]
-            [puppeteer.infra.datasource.example :refer [example-datasource-component]]
-            [puppeteer.infra.repository.example :refer [example-repository-component]]
-            [puppeteer.domain.usecase.example :refer [example-usecase-component]]
+            [puppeteer.infra.client.container-builder :refer [container-builder-client-component]]
+            [puppeteer.infra.client.pubsub :refer [pubsub-subscription-component]]
+            [puppeteer.infra.client.k8s :refer [k8s-client-component]]
+            [puppeteer.infra.repository.build :refer [build-repository-component]]
+            [puppeteer.infra.repository.deploy :refer [deploy-repository-component]]
+            [puppeteer.domain.usecase.build :refer [build-usecase-component]]
             [puppeteer.app.my-webapp.handler :refer [my-webapp-handler-component]]
             [puppeteer.app.my-webapp.endpoint :refer [my-webapp-endpoint-component]])
   (:gen-class))
 
 (defn puppeteer-system
-  [{:keys [puppeteer-example-port
+  [{:keys [puppeteer-k8s-endpoint
            puppeteer-my-webapp-port] :as conf}]
   (component/system-map
-    :example-datasource (example-datasource-component puppeteer-example-port)
-    :example-repository (component/using
-                          (example-repository-component)
-                          [:example-datasource])
-    :example-usecase (component/using
-                       (example-usecase-component)
-                       [:example-repository])
-    :my-webapp-handler (component/using
-                         (my-webapp-handler-component)
-                         [:example-usecase])
-    :my-webapp-endpoint (component/using
-                          (my-webapp-endpoint-component puppeteer-my-webapp-port)
-                          [:my-webapp-handler])))
+    :container-builder-client (container-builder-client-component)
+    :pubsub-subscription (pubsub-subscription-component)
+    :k8s-client (k8s-client-component puppeteer-k8s-endpoint)
+    :build-repository (component/using
+                        (build-repository-component)
+                        [:container-builder-client
+                         :pubsub-subscription])
+    :deploy-repository (component/using
+                         (deploy-repository-component)
+                         [:k8s-client])
+    :build-usecase (component/using
+                     (build-usecase-component)
+                     [:build-repository])))
 
 (defn load-config []
-  {:puppeteer-example-port (-> (or (env :puppeteer-example-port) "8000") Integer/parseInt)
-   :puppeteer-my-webapp-port (-> (or (env :puppeteer-my-webapp-port) "8080") Integer/parseInt)})
+  {:puppeteer-my-webapp-port (-> (or (env :puppeteer-my-webapp-port) "8080") Integer/parseInt)
+   :puppeteer-k8s-endpoint (-> (or (env :puppeteer-k8s-endpoint) "http://localhost:8001"))})
 
 (defn -main []
   (component/start

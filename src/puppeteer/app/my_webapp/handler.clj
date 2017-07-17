@@ -1,14 +1,11 @@
 (ns puppeteer.app.my-webapp.handler
-  (:require [com.stuartsierra.component :as component]
-            [cheshire.core :refer [generate-string]]
-            [puppeteer.domain.usecase.example :as example-usecase]))
+  (:require [com.stuartsierra.component :as component]))
 
-(defn get-message
-  [{:keys [example-usecase] :as comp}]
-  (-> {:message (example-usecase/get-message example-usecase)}
-      generate-string))
+(defn index
+  [{:keys [] :as comp}]
+  "OK")
 
-(defrecord MyWebappHandlerComponent [example-usecase]
+(defrecord MyWebappHandlerComponent []
   component/Lifecycle
   (start [this]
     (println ";; Starting MyWebappHandlerComponent")
