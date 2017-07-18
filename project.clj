@@ -13,6 +13,7 @@
                  [cheshire "5.7.1"]
                  [circleci/clj-yaml "0.5.5"]
                  [org.clojure/tools.namespace "0.2.10"]
+                 [com.taoensso/faraday "1.8.0"]
                  [io.fabric8/kubernetes-client "2.5.6"]
                  [io.fabric8/kubernetes-model "1.1.0"]
                  [com.google.guava/guava "22.0"]
