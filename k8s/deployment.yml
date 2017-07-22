@@ -17,3 +17,23 @@ spec:
         env:
           - name: PUPPETEER_MY_WEBAPP_PORT
             value: 8080
+          - name: PUPPETEER_SLACK_INCOMING_WEBHOOK
+            valueFrom:
+              secretKeyRef:
+                name: puppeteer
+                key: slack-incoming-webhook
+          - name: PUPPETEER_AWS_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: puppeteer
+                key: aws-access-key
+          - name: PUPPETEER_AWS_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: puppeteer
+                key: aws-secret-key
+          - name: PUPPETEER_DYNAMODB_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: puppeteer
+                key: dynamodb-endpoint
