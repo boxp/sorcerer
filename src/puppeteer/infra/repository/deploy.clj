@@ -1,8 +1,5 @@
 (ns puppeteer.infra.repository.deploy
-  (:import (com.google.api.services.cloudbuild.v1.model Build Source RepoSource BuildStep))
-  (:require [com.stuartsierra.component :as component]
-            [clojure.core.async :refer [go put! <! close! chan]]
-            [cheshire.core :refer [parse-string]]))
+  (:require [com.stuartsierra.component :as component]))
 
 (defn get-ingress
   [{:keys [k8s-client] :as comp} ingress-name]
