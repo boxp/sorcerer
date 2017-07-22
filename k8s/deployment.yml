@@ -16,7 +16,7 @@ spec:
         - containerPort: 8080
         env:
           - name: PUPPETEER_MY_WEBAPP_PORT
-            value: 8080
+            value: "8080"
           - name: PUPPETEER_SLACK_INCOMING_WEBHOOK
             valueFrom:
               secretKeyRef:
