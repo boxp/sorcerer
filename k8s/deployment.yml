@@ -17,11 +17,11 @@ spec:
         env:
           - name: PUPPETEER_WEBAPP_PORT
             value: "8080"
-          - name: PUPPETEER_SLACK_INCOMING_WEBHOOK
+          - name: PUPPETEER_SLACK_TOKEN
             valueFrom:
               secretKeyRef:
                 name: puppeteer
-                key: slack-incoming-webhook
+                key: slack-token
           - name: PUPPETEER_AWS_ACCESS_KEY
             valueFrom:
               secretKeyRef:

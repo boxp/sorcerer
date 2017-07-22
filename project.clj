@@ -7,6 +7,7 @@
                  [org.clojure/core.async "0.2.395"]
                  [environ "1.1.0"]
                  [com.stuartsierra/component "0.3.2"]
+                 [slack-rtm "0.1.5"]
                  [ring "1.6.1"]
                  [ring/ring-json "0.4.0"]
                  [compojure "1.6.0"]
