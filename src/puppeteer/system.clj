@@ -7,13 +7,13 @@
             [puppeteer.infra.repository.build :refer [build-repository-component]]
             [puppeteer.infra.repository.deploy :refer [deploy-repository-component]]
             [puppeteer.domain.usecase.build :refer [build-usecase-component]]
-            [puppeteer.app.my-webapp.handler :refer [my-webapp-handler-component]]
-            [puppeteer.app.my-webapp.endpoint :refer [my-webapp-endpoint-component]])
+            [puppeteer.app.webapp.handler :refer [webapp-handler-component]]
+            [puppeteer.app.webapp.endpoint :refer [webapp-endpoint-component]])
   (:gen-class))
 
 (defn puppeteer-system
   [{:keys [puppeteer-k8s-endpoint
-           puppeteer-my-webapp-port] :as conf}]
+           puppeteer-webapp-port] :as conf}]
   (component/system-map
     :container-builder-client (container-builder-client-component)
     :pubsub-subscription (pubsub-subscription-component)
@@ -27,10 +27,14 @@
                          [:k8s-client])
     :build-usecase (component/using
                      (build-usecase-component)
-                     [:build-repository])))
+                     [:build-repository])
+    :webapp-handler (webapp-handler-component)
+    :webapp-endpoint (component/using
+                       (webapp-endpoint-component puppeteer-webapp-port)
+                       [:webapp-handler])))
 
 (defn load-config []
-  {:puppeteer-my-webapp-port (-> (or (env :puppeteer-my-webapp-port) "8080") Integer/parseInt)
+  {:puppeteer-webapp-port (-> (or (env :puppeteer-webapp-port) "8080") Integer/parseInt)
    :puppeteer-k8s-endpoint (-> (or (env :puppeteer-k8s-endpoint) "http://localhost:8001"))})
 
 (defn -main []
