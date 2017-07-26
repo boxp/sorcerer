@@ -10,8 +10,10 @@
             [puppeteer.infra.repository.deploy :refer [deploy-repository-component]]
             [puppeteer.infra.repository.message :refer [message-repository-component]]
             [puppeteer.domain.usecase.build :refer [build-usecase-component]]
+            [puppeteer.domain.usecase.message :refer [message-usecase-component]]
             [puppeteer.app.webapp.handler :refer [webapp-handler-component]]
-            [puppeteer.app.webapp.endpoint :refer [webapp-endpoint-component]])
+            [puppeteer.app.webapp.endpoint :refer [webapp-endpoint-component]]
+            [puppeteer.app.slackbot.alice :refer [alice-component]])
   (:gen-class))
 
 (defn puppeteer-system
@@ -38,10 +40,17 @@
     :build-usecase (component/using
                      (build-usecase-component)
                      [:build-repository])
+    :message-usecase (component/using
+                       (message-usecase-component)
+                       [:message-repository])
     :webapp-handler (webapp-handler-component)
     :webapp-endpoint (component/using
                        (webapp-endpoint-component puppeteer-webapp-port)
-                       [:webapp-handler])))
+                       [:webapp-handler])
+    :alice (component/using
+             (alice-component)
+             [:message-usecase
+              :build-usecase])))
 
 (defn load-config []
   {:puppeteer-webapp-port (-> (or (env :puppeteer-webapp-port) "8080") Integer/parseInt)

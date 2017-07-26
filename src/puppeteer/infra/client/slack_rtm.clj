@@ -1,6 +1,6 @@
 (ns puppeteer.infra.client.slack-rtm
   (:require [slack-rtm.core :as rtm]
-            [clojure.core.async :refer [chan put!]]
+            [clojure.core.async :refer [chan put! close!]]
             [com.stuartsierra.component :as component]))
 
 (defn wrap-for-me?
@@ -14,7 +14,7 @@
                            (-> rtm-connection :start :self :id)
                            "\\> .*"))))))
 
-(defn subscribe-message
+(defn- subscribe-message
   [rtm-connection]
   (let [c (chan)
         f #(some->> %
@@ -22,14 +22,19 @@
                     (put! c))]
     (rtm/sub-to-event (:events-publication rtm-connection) :message f)))
 
-(defrecord SlackRtmComponent [rtm-connection token]
+(defrecord SlackRtmComponent [rtm-connection message-channel token]
   component/Lifecycle
   (start [this]
     (println ";; Starting SlackRtmComponent")
-    (-> this
-        (assoc :rtm-connection (rtm/connect token))))
-  (stop [this]
+    (let [rtm-connection (rtm/connect token)]
+      (-> this
+          (assoc :rtm-connection rtm-connection)
+          (assoc :message-channel (subscribe-message rtm-connection)))))
+  (stop [{:keys [rtm-connection message-channel] :as this}]
     (println ";; Stopping SlackRtmComponent")
+    (close! message-channel)
+    (when-not (nil? rtm-connection)
+      (rtm/send-event (:dispatcher rtm-connection) :close))
     (-> this
         (dissoc :rtm-connection))))
 
