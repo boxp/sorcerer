@@ -6,6 +6,7 @@
             [puppeteer.infra.client.k8s :refer [k8s-client-component]]
             [puppeteer.infra.client.slack :refer [slack-component]]
             [puppeteer.infra.client.slack-rtm :refer [slack-rtm-component]]
+            [puppeteer.infra.client.github :refer [github-component]]
             [puppeteer.infra.repository.build :refer [build-repository-component]]
             [puppeteer.infra.repository.deploy :refer [deploy-repository-component]]
             [puppeteer.infra.repository.message :refer [message-repository-component]]
@@ -19,13 +20,15 @@
 (defn puppeteer-system
   [{:keys [puppeteer-k8s-endpoint
            puppeteer-webapp-port
-           puppeteer-slack-token] :as conf}]
+           puppeteer-slack-token
+           puppeteer-github-oauth-token] :as conf}]
   (component/system-map
     :container-builder-client (container-builder-client-component)
     :pubsub-subscription (pubsub-subscription-component)
     :k8s-client (k8s-client-component puppeteer-k8s-endpoint)
     :slack-client (slack-component puppeteer-slack-token)
     :slack-rtm-client (slack-rtm-component puppeteer-slack-token)
+    :github-client (github-component puppeteer-github-oauth-token)
     :build-repository (component/using
                         (build-repository-component)
                         [:container-builder-client
@@ -55,7 +58,8 @@
 (defn load-config []
   {:puppeteer-webapp-port (-> (or (env :puppeteer-webapp-port) "8080") Integer/parseInt)
    :puppeteer-k8s-endpoint (or (env :puppeteer-k8s-endpoint) "http://localhost:8001")
-   :puppeteer-slack-token (env :puppeteer-slack-token)})
+   :puppeteer-slack-token (env :puppeteer-slack-token)
+   :puppeteer-github-oauth-token (env :puppeteer-github-oauth-token)})
 
 (defn -main []
   (component/start

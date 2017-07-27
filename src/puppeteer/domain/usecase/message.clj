@@ -3,16 +3,27 @@
             [puppeteer.domain.entity.message :refer [map->Message map->Attachment map->Field]]
             [puppeteer.infra.repository.message :as r]))
 
-(defn send-build-message
+(defn send-help-message
+  [{:keys [message-repository]}
+   {:keys [received-message]}]
+  (->> {:channel-id (:channel-id received-message)
+        :user-id (:user-id received-message)
+        :text ":dolls:"
+        :attachments [(map->Attachment
+                        {:text (str ":rocket: Deploy: @alice deploy <repository-name> <branch-name>")})]}
+       map->Message
+       (r/send-message message-repository)))
+
+(defn send-deploy-message
   [{:keys [message-repository]}
    {:keys [received-message repo-name branch-name]}]
   (->> {:channel-id (:channel-id received-message)
         :user-id (:user-id received-message)
         :text ""
         :attachments [(map->Attachment
-                        {:fields
-                         (map->Field
-                           {:title (str ":loading: Building " repo-name "/" branch-name " ...")})})]}
+                        {:text (str ":loading: Building " repo-name "/" branch-name " ...")})
+                      (map->Attachment
+                        {:text (str ":clock9: Deploy " repo-name "/" branch-name " ...")})]}
        map->Message
        (r/send-message message-repository)))
 

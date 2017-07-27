@@ -22,6 +22,11 @@ spec:
               secretKeyRef:
                 name: puppeteer
                 key: slack-token
+          - name: PUPPETEER_GITHUB_OAUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: puppeteer
+                key: github-oauth-token
           - name: PUPPETEER_AWS_ACCESS_KEY
             valueFrom:
               secretKeyRef:

@@ -7,8 +7,9 @@
 
 (defn connect
   [token]
-  {:connection {:token token
-                :api-url api-url}})
+  {:token token
+   :api-url api-url})
+
 (defn post
   [{:keys [connection]} {:keys [channel text optionals]}]
   (chat/post-message connection channel text (merge {:as_user "true"} optionals)))

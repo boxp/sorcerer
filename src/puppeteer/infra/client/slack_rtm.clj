@@ -5,14 +5,15 @@
 
 (defn wrap-for-me?
   [rtm-connection m]
-  (assoc m :for-me?
-         (some->> m
-                  :txt
-                  (re-matches
-                    (re-pattern
-                      (str "\\<\\@"
-                           (-> rtm-connection :start :self :id)
-                           "\\> .*"))))))
+  (-> m
+      (assoc :for-me?
+             (some->> m
+                      :text
+                      (re-matches
+                        (re-pattern
+                          (str "\\<\\@"
+                               (-> rtm-connection :start :self :id)
+                               "\\> .*")))))))
 
 (defn- subscribe-message
   [rtm-connection]
@@ -20,7 +21,8 @@
         f #(some->> %
                     (wrap-for-me? rtm-connection)
                     (put! c))]
-    (rtm/sub-to-event (:events-publication rtm-connection) :message f)))
+    (rtm/sub-to-event (:events-publication rtm-connection) :message f)
+    c))
 
 (defrecord SlackRtmComponent [rtm-connection message-channel token]
   component/Lifecycle

@@ -13,6 +13,10 @@
                :images ["asia.gcr.io/$PROJECT_ID/eure-atnd:$COMMIT_SHA"]}]
     (r/create-build build-repository build)))
 
+(defn subscribe-build-message
+  [{:keys [build-repository] :as comp}]
+  (r/get-build-message build-repository))
+
 (defrecord BuildUsecaseComponent [build-repository]
   component/Lifecycle
   (start [this]

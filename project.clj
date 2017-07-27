@@ -15,6 +15,7 @@
                  [cheshire "5.7.1"]
                  [circleci/clj-yaml "0.5.5"]
                  [clj-http "3.6.1"]
+                 [tentacles "0.5.1"]
                  [org.clojure/tools.namespace "0.2.10"]
                  [com.taoensso/faraday "1.8.0"]
                  [io.fabric8/kubernetes-client "2.5.6"]

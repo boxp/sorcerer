@@ -9,12 +9,13 @@
   [{:keys [channel-id text attachments]}]
   {:channel channel-id
    :text text
-   :optionals {:attachments attachments}})
+   :optionals (if attachments {:attachments attachments})})
 
 (defn- Post->Message
-  [{:keys [channel user ts for-me? optionals]}]
+  [{:keys [channel user text ts for-me? optionals] :as post}]
   (map->Message {:channel-id channel
                  :user-id user
+                 :text text
                  :for-me? for-me?
                  :timestamp ts
                  :attachments (:attachments optionals)}))
@@ -22,20 +23,20 @@
 (defn- Message->Reply
   [{:keys [channel-id user-id text attachments]}]
   {:channel channel-id
-   :user-id user-id
+   :user user-id
    :text text
-   :optionals {:attachments attachments}})
+   :optionals (if attachments {:attachments attachments})})
 
 (defn- Message->Update
   [{:keys [channel-id text timestamp attachments]}]
   {:channel channel-id
    :text text
    :ts timestamp
-   :optionals {:attachments attachments}})
+   :optionals (if attachments {:attachments attachments})})
 
 (defn subscribe-message
   [{:keys [slack-rtm-client]}]
-  (->> (:message-channel slack-rtm-client)
+  (->> [(:message-channel slack-rtm-client)]
        (async/map Post->Message)))
 
 (defn send-message
