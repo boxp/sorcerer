@@ -5,8 +5,9 @@
 
 (defn get-file
   [{:keys [base-opt]}
-   {:keys [user repo path]}]
-  (some->> (repos/contents user repo path base-opt)
+   {:keys [user repo ref path]}]
+  (some->> (assoc base-opt :ref ref)
+           (repos/contents user repo path)
            :content
            slurp))
 

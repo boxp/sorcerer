@@ -10,22 +10,27 @@
         :user-id (:user-id received-message)
         :text ":dolls:"
         :attachments [(map->Attachment
-                        {:text (str ":rocket: Deploy: @alice deploy <repository-name> <branch-name>")})]}
+                        {:text (str ":rocket: Deploy: @alc deploy <user-name> <repository-name> <branch-name>")})]}
        map->Message
        (r/send-message message-repository)))
 
 (defn send-deploy-message
   [{:keys [message-repository]}
-   {:keys [received-message repo-name branch-name]}]
+   {:keys [received-message user-name repo-name branch-name]}]
   (->> {:channel-id (:channel-id received-message)
         :user-id (:user-id received-message)
         :text ""
         :attachments [(map->Attachment
-                        {:text (str ":loading: Building " repo-name "/" branch-name " ...")})
+                        {:text (str ":loading: Building " user-name "/" repo-name "/" branch-name " ...")})
                       (map->Attachment
-                        {:text (str ":clock9: Deploy " repo-name "/" branch-name " ...")})]}
+                        {:text (str ":clock9: Deploy " user-name "/" repo-name "/" branch-name " ...")})]}
        map->Message
        (r/send-message message-repository)))
+
+(defn update-message
+  [{:keys [message-repository]}
+   {:keys [message]}]
+  (r/update-message message-repository message))
 
 (defn subscribe-message
   [{:keys [message-repository]}]

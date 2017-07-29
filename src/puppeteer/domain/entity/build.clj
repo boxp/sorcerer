@@ -8,4 +8,4 @@
 
 (defrecord Build [source steps images])
 
-(defrecord BuildMessage [id project-id status source steps create-time start-time finish-time timeout images logs-bucket source-provenance log-url])
+(defrecord BuildMessage [id projectId status source steps createTime startTime finishTime timeout images logs-bucket sourceProvenance logUrl])

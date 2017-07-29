@@ -29,17 +29,26 @@
 
 (defn- BuildMessage->build-message
   [m]
-  (some-> m
-          .getData
-          .toStringUtf8
-          parse-string
-          entity/map->BuildMessage))
+  (doto (some-> m
+                .getData
+                .toStringUtf8
+                (parse-string true)
+                entity/map->BuildMessage)
+    println))
+
+(defn- Operation->BuildId
+  [operation]
+  (some-> operation
+          .getMetadata
+          (.get "build")
+          (.get "id")))
 
 (defn create-build
   [{:keys [container-builder-client] :as comp} build]
   (->> build
        build->Build
-       (gccb-cli/create-build container-builder-client)))
+       (gccb-cli/create-build container-builder-client)
+       Operation->BuildId))
 
 (def topic-key :cloud-builds)
 (def subscription-key :puppeteer-cloud-builds)

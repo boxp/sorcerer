@@ -34,6 +34,13 @@
    :ts timestamp
    :optionals (if attachments {:attachments attachments})})
 
+(defn- PostResult->Message
+  [{:keys [ts channel text optionals]}]
+  {:channel-id channel
+   :text text
+   :timestamp ts
+   :attachments (:attachments optionals)})
+
 (defn subscribe-message
   [{:keys [slack-rtm-client]}]
   (->> [(:message-channel slack-rtm-client)]
@@ -44,10 +51,12 @@
   (if (:user-id message)
     (->> message
          Message->Reply
-         (slack-cli/reply slack-client))
+         (slack-cli/reply slack-client)
+         PostResult->Message)
     (->> message
          Message->Post
-         (slack-cli/post slack-client))))
+         (slack-cli/post slack-client)
+         PostResult->Message)))
 
 (defn update-message
   [{:keys [slack-client]} message]
