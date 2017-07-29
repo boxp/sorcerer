@@ -12,11 +12,7 @@ spec:
       containers:
       - name: puppeteer
         image: asia.gcr.io/boxp-tk/puppeteer:${CIRCLE_SHA1}
-        ports:
-        - containerPort: 8080
         env:
-          - name: PUPPETEER_WEBAPP_PORT
-            value: "8080"
           - name: PUPPETEER_SLACK_TOKEN
             valueFrom:
               secretKeyRef:

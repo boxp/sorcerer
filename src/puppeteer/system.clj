@@ -68,10 +68,6 @@
     :job-usecase (component/using
                    (job-usecase-component)
                    [:job-repository])
-    :webapp-handler (webapp-handler-component)
-    :webapp-endpoint (component/using
-                       (webapp-endpoint-component puppeteer-webapp-port)
-                       [:webapp-handler])
     :alice (component/using
              (alice-component)
              [:message-usecase
@@ -80,8 +76,7 @@
               :job-usecase])))
 
 (defn load-config []
-  {:puppeteer-webapp-port (-> (or (env :puppeteer-webapp-port) "8080") Integer/parseInt)
-   :puppeteer-k8s-endpoint (or (env :puppeteer-k8s-endpoint) "http://localhost:8001")
+  {:puppeteer-k8s-endpoint (or (env :puppeteer-k8s-endpoint) "http://localhost:8001")
    :puppeteer-slack-token (env :puppeteer-slack-token)
    :puppeteer-github-oauth-token (env :puppeteer-github-oauth-token)
    :puppeteer-aws-access-key (env :puppeteer-aws-access-key)
