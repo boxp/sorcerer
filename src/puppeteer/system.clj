@@ -17,8 +17,6 @@
             [puppeteer.domain.usecase.message :refer [message-usecase-component]]
             [puppeteer.domain.usecase.conf :refer [configuration-usecase-component]]
             [puppeteer.domain.usecase.job :refer [job-usecase-component]]
-            [puppeteer.app.webapp.handler :refer [webapp-handler-component]]
-            [puppeteer.app.webapp.endpoint :refer [webapp-endpoint-component]]
             [puppeteer.app.slackbot.alice :refer [alice-component]])
   (:gen-class))
 
