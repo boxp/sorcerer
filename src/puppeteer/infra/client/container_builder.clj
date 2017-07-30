@@ -13,7 +13,6 @@
   [{:keys [project-id client] :as comp} build]
   (let [credential (doto (GoogleCredential/getApplicationDefault)
                      .refreshToken)]
-    (println (-> credential .getAccessToken))
     (-> client
         .projects
         .builds

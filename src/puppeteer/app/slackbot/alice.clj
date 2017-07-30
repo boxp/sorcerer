@@ -67,8 +67,7 @@
    m]
   (case (:status m)
     "SUCCESS" (deploy-succeed comp m)
-    "FAILURE" nil
-    nil))
+    (println m)))
 
 (defmethod reaction :default
   [_ _])
