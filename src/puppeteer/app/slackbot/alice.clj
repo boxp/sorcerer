@@ -44,7 +44,8 @@
   [{:keys [message-usecase build-usecase conf-usecase job-usecase]}
    m]
   (let [job (get-job job-usecase (:id m))]
-    (send-build-failure-message message-usecase job)))
+    (when job
+      (send-build-failure-message message-usecase job))))
 
 (defmulti reaction
   (fn [_ m] (:type m)))
