@@ -35,11 +35,11 @@
    :optionals (if attachments {:attachments attachments})})
 
 (defn- PostResult->Message
-  [{:keys [ts channel text optionals]}]
+  [{:keys [ts channel text message] :as res}]
   {:channel-id channel
-   :text text
+   :text (:text message)
    :timestamp ts
-   :attachments (:attachments optionals)})
+   :attachments (:attachments message)})
 
 (defn subscribe-message
   [{:keys [slack-rtm-client]}]

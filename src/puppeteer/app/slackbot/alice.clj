@@ -35,12 +35,12 @@
               :repo-name repo-name
               :branch-name branch-name}))
     (assoc-in $ [:build :id]
-           (build
-             build-usecase
-             {:conf (:conf $)
-              :user-name user-name
-              :repo-name repo-name
-              :branch-name branch-name}))
+              (build
+                build-usecase
+                {:conf (:conf $)
+                 :user-name user-name
+                 :repo-name repo-name
+                 :branch-name branch-name}))
     (set-job job-usecase $)))
 
 (defn- deploy-succeed
