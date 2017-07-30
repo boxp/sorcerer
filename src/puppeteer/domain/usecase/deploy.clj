@@ -19,14 +19,14 @@
 
 (defn- prepare-deployment
   [{:keys [deploy-repository]}
-   {:keys [conf build] :as job}]
+   {:keys [conf build user-name repo-name branch-name] :as job}]
   (let [deployment (deployrepo/get-resource
                      deploy-repository
-                     {:user (:user-name conf)
-                      :repo (:repo-name conf)
-                      :ref (:branch-name conf)
+                     {:user user-name
+                      :repo repo-name
+                      :ref branch-name
                       :path (-> conf :k8s :deployment)})
-        app (str (:repo-name conf) "-" (:branch-name conf))]
+        app (str repo-name "-" branch-name)]
     (-> deployment
         (assoc-in [:metadata :name] app)
         (assoc-in [:spec :template :metadata :labels :app] app)
@@ -35,14 +35,14 @@
 
 (defn- prepare-service
   [{:keys [deploy-repository]}
-   {:keys [conf build] :as job}]
+   {:keys [conf build user-name repo-name branch-name] :as job}]
   (let [service (deployrepo/get-resource
                   deploy-repository
-                  {:user (:user-name conf)
-                   :repo (:repo-name conf)
-                   :ref (:branch-name conf)
+                  {:user user-name
+                   :repo repo-name
+                   :ref branch-name
                    :path (-> conf :k8s :service)})
-        app (str (:repo-name conf) "-" (:branch-name conf))]
+        app (str repo-name "-" branch-name)]
     (-> service
         (assoc-in [:metadata :name] app)
         (assoc-in [:selector :app] app))))
