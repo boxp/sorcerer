@@ -11,13 +11,15 @@
 
 (defn create-build
   [{:keys [project-id client] :as comp} build]
-  (println (-> (GoogleCredential/getApplicationDefault)))
-  (-> client
-      .projects
-      .builds
-      (.create project-id build)
-      (.setAccessToken (-> (GoogleCredential/getApplicationDefault) .getAccessToken))
-      .execute))
+  (let [credential (doto (GoogleCredential/getApplicationDefault)
+                     .refreshToken)]
+    (println (-> credential .getAccessToken))
+    (-> client
+        .projects
+        .builds
+        (.create project-id build)
+        (.setAccessToken (-> credential .getAccessToken))
+        .execute)))
 
 (defrecord ContainerBuilderClientComponent [project-id client]
   component/Lifecycle
