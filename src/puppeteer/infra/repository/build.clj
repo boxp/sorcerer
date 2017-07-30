@@ -29,12 +29,11 @@
 
 (defn- BuildMessage->build-message
   [m]
-  (doto (some-> m
-                .getData
-                .toStringUtf8
-                (parse-string true)
-                entity/map->BuildMessage)
-    println))
+  (some-> m
+          .getData
+          .toStringUtf8
+          (parse-string true)
+          entity/map->BuildMessage))
 
 (defn- Operation->BuildId
   [operation]

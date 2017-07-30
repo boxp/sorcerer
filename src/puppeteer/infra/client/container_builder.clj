@@ -11,6 +11,7 @@
 
 (defn create-build
   [{:keys [project-id client] :as comp} build]
+  (println (-> (GoogleCredential/getApplicationDefault) .getAccessToken))
   (-> client
       .projects
       .builds
