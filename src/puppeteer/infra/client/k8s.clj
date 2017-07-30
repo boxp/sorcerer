@@ -7,7 +7,9 @@
   (start [this]
     (println ";; Starting K8sClientComponent")
     (-> this
-        (assoc :client (DefaultKubernetesClient. (:endpoint this)))))
+        (assoc :client (if endpoint
+                         (DefaultKubernetesClient. endpoint)
+                         (DefaultKubernetesClient.)))))
   (stop [this]
     (println ";; Stopping K8sClientComponent")
     (-> this

@@ -3,10 +3,11 @@
             [com.stuartsierra.component :as component]
             [puppeteer.domain.entity.message :refer [map->Message map->Attachment map->Field]]
             [puppeteer.domain.entity.job :refer [map->Job]]
-            [puppeteer.domain.usecase.message :refer [send-deploy-message send-help-message subscribe-message]]
+            [puppeteer.domain.usecase.message :refer [send-deploy-message send-help-message send-build-succeed-message send-build-failure-message send-deploy-start-message subscribe-message]]
             [puppeteer.domain.usecase.build :refer [build subscribe-build-message]]
             [puppeteer.domain.usecase.conf :refer [load-conf]]
-            [puppeteer.domain.usecase.job :refer [get-job set-job]]))
+            [puppeteer.domain.usecase.job :refer [get-job set-job]]
+            [puppeteer.domain.usecase.deploy :refer [apply]]))
 
 (defn- help
   [{:keys [message-usecase build-usecase]}
@@ -14,40 +15,36 @@
    _]
   (send-help-message
     message-usecase
-    {:received-message m}))
+    {:message m}))
 
 (defn- deploy
   [{:keys [message-usecase build-usecase conf-usecase job-usecase]}
    m
    [_ _ user-name repo-name branch-name]]
-  (as-> (map->Job {}) $
-    (assoc $ :conf
-           (load-conf
-             conf-usecase
-             {:user-name user-name
-              :repo-name repo-name
-              :branch-name branch-name}))
-    (assoc $ :message
-           (send-deploy-message
-             message-usecase
-             {:received-message m
-              :user-name user-name
-              :repo-name repo-name
-              :branch-name branch-name}))
-    (assoc-in $ [:build :id]
-              (build
-                build-usecase
-                {:conf (:conf $)
-                 :user-name user-name
-                 :repo-name repo-name
-                 :branch-name branch-name}))
+  (as-> (map->Job {:user-name user-name
+                   :repo-name repo-name
+                   :branch-name branch-name
+                   :message m}) $
+    (assoc $ :conf (load-conf conf-usecase $))
+    (do (send-deploy-message message-usecase $) $)
+    (assoc-in $ [:build :id] (build build-usecase $))
     (set-job job-usecase $)))
 
-(defn- deploy-succeed
+(defn- build-succeed
+  [{:keys [message-usecase build-usecase conf-usecase job-usecase deploy-usecase]}
+   m]
+  (let [job (get-job job-usecase (:id m))]
+    (when job
+      (as-> job $
+        (do (send-build-succeed-message message-usecase $) $)
+        (do (send-deploy-start-message message-usecase $) $)
+        (do (apply deploy-usecase $))))))
+
+(defn- build-failure
   [{:keys [message-usecase build-usecase conf-usecase job-usecase]}
    m]
-  (as-> (get-job job-usecase (:id m)) $
-        (println $)))
+  (let [job (get-job job-usecase (:id m))]
+    (send-build-failure-message message-usecase job)))
 
 (defmulti reaction
   (fn [_ m] (:type m)))
@@ -66,8 +63,9 @@
   [{:keys [message-usecase build-usecase] :as comp}
    m]
   (case (:status m)
-    "SUCCESS" (deploy-succeed comp m)
-    (println m)))
+    "SUCCESS" (build-succeed comp m)
+    "FAILURE" (build-failure comp m)
+    nil))
 
 (defmethod reaction :default
   [_ _])
@@ -84,7 +82,7 @@
                            build-chan
                            ([v _] (some-> v (assoc :type :build)))))))))
 
-(defrecord AliceComponent [message-usecase build-usecase conf-usecase job-usecase]
+(defrecord AliceComponent [message-usecase build-usecase conf-usecase job-usecase deploy-usecase]
   component/Lifecycle
   (start [{:keys [message-usecase build-usecase] :as this}]
     (println ";; Starting AliceComponent")

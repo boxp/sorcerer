@@ -50,13 +50,12 @@
        Operation->BuildId))
 
 (def topic-key :cloud-builds)
-(def subscription-key :puppeteer-cloud-builds)
 
 (defn get-build-message
   [{:keys [container-builder-client] :as comp}]
   (:channel comp))
 
-(defrecord BuildRepositoryComponent [container-builder-client pubsub-subscription]
+(defrecord BuildRepositoryComponent [container-builder-client pubsub-subscription subscription-key]
   component/Lifecycle
   (start [this]
     (let [c (chan)]
@@ -77,5 +76,5 @@
         (dissoc :channel))))
 
 (defn build-repository-component
-  []
-  (map->BuildRepositoryComponent {}))
+  [subscription-name]
+  (map->BuildRepositoryComponent {:subscription-key (keyword subscription-name)}))

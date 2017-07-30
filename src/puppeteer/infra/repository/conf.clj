@@ -6,6 +6,7 @@
 (defn- Content->Configuration
   [content]
   (some->> content
+           slurp
            read-string
            map->Configuration))
 

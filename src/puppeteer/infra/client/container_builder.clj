@@ -10,22 +10,22 @@
 (def application-name "puppeteer")
 
 (defn create-build
-  [{:keys [project-id client] :as comp} build]
-  (let [credential (doto (GoogleCredential/getApplicationDefault)
-                     .refreshToken)]
-    (-> client
-        .projects
-        .builds
-        (.create project-id build)
-        (.setAccessToken (-> credential .getAccessToken))
-        .execute)))
+  [{:keys [project-id client access-token] :as comp} build]
+  (-> client
+      .projects
+      .builds
+      (.create project-id build)
+      (.setAccessToken access-token)
+      .execute))
 
-(defrecord ContainerBuilderClientComponent [project-id client]
+(defrecord ContainerBuilderClientComponent [project-id client access-token]
   component/Lifecycle
   (start [this]
     (println ";; Starting ContainerBuilderClientComponent")
     (-> this
         (assoc :project-id (ServiceOptions/getDefaultProjectId))
+        (assoc :access-token (-> (doto (GoogleCredential/getApplicationDefault) .refreshToken)
+                                 .getAccessToken))
         (assoc :client (-> (CloudBuild$Builder. (GoogleNetHttpTransport/newTrustedTransport)
                                                 (JacksonFactory.)
                                                 nil)
@@ -34,7 +34,8 @@
   (stop [this]
     (println ";; Stopping ContainerBuilderClientComponent")
     (-> this
-        (dissoc :client))))
+        (dissoc :client)
+        (dissoc :access-token))))
 
 (defn container-builder-client-component
   []

@@ -38,3 +38,15 @@ spec:
               secretKeyRef:
                 name: puppeteer
                 key: dynamodb-endpoint
+          - name: PUPPETEER_PUBSUB_SUBSCRIPTION_NAME
+            value: "puppeteer-cloud-builds"
+          - name: PUPPETEER_K8S_DOMAIN
+            valueFrom:
+              secretKeyRef:
+                name: puppeteer
+                key: k8s-domain
+          - name: PUPPETEER_K8S_INGRESS_NAME
+            valueFrom:
+              secretKeyRef:
+                name: puppeteer
+                key: k8s-ingress-name

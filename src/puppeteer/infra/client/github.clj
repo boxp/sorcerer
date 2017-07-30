@@ -8,8 +8,7 @@
    {:keys [user repo ref path]}]
   (some->> (assoc base-opt :ref ref)
            (repos/contents user repo path)
-           :content
-           slurp))
+           :content))
 
 (defrecord GithubComponent [github-oauth-token base-opt]
   component/Lifecycle

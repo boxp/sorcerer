@@ -17,6 +17,7 @@
             [puppeteer.domain.usecase.message :refer [message-usecase-component]]
             [puppeteer.domain.usecase.conf :refer [configuration-usecase-component]]
             [puppeteer.domain.usecase.job :refer [job-usecase-component]]
+            [puppeteer.domain.usecase.deploy :refer [deploy-usecase-component]]
             [puppeteer.app.slackbot.alice :refer [alice-component]])
   (:gen-class))
 
@@ -27,7 +28,10 @@
            puppeteer-github-oauth-token
            puppeteer-aws-access-key
            puppeteer-aws-secret-key
-           puppeteer-dynamodb-endpoint] :as conf}]
+           puppeteer-dynamodb-endpoint
+           puppeteer-pubsub-subscription-name
+           puppeteer-k8s-ingress-name
+           puppeteer-k8s-domain] :as conf}]
   (component/system-map
     :container-builder-client (container-builder-client-component)
     :pubsub-subscription (pubsub-subscription-component)
@@ -37,12 +41,13 @@
     :github-client (github-component puppeteer-github-oauth-token)
     :dynamodb-client (dynamodb-component puppeteer-aws-access-key puppeteer-aws-secret-key puppeteer-dynamodb-endpoint)
     :build-repository (component/using
-                        (build-repository-component)
+                        (build-repository-component puppeteer-pubsub-subscription-name)
                         [:container-builder-client
                          :pubsub-subscription])
     :deploy-repository (component/using
-                         (deploy-repository-component)
-                         [:k8s-client])
+                         (deploy-repository-component puppeteer-k8s-domain puppeteer-k8s-ingress-name)
+                         [:k8s-client
+                          :github-client])
     :message-repository (component/using
                           (message-repository-component)
                           [:slack-client
@@ -66,20 +71,27 @@
     :job-usecase (component/using
                    (job-usecase-component)
                    [:job-repository])
+    :deploy-usecase (component/using
+                      (deploy-usecase-component)
+                      [:deploy-repository])
     :alice (component/using
              (alice-component)
              [:message-usecase
               :build-usecase
               :conf-usecase
-              :job-usecase])))
+              :job-usecase
+              :deploy-usecase])))
 
 (defn load-config []
-  {:puppeteer-k8s-endpoint (or (env :puppeteer-k8s-endpoint) "http://localhost:8001")
+  {:puppeteer-k8s-endpoint (env :puppeteer-k8s-endpoint)
    :puppeteer-slack-token (env :puppeteer-slack-token)
    :puppeteer-github-oauth-token (env :puppeteer-github-oauth-token)
    :puppeteer-aws-access-key (env :puppeteer-aws-access-key)
    :puppeteer-aws-secret-key (env :puppeteer-aws-secret-key)
-   :puppeteer-dynamodb-endpoint (env :puppeteer-dynamodb-endpoint)})
+   :puppeteer-dynamodb-endpoint (env :puppeteer-dynamodb-endpoint)
+   :puppeteer-pubsub-subscription-name (env :puppeteer-pubsub-subscription-name)
+   :puppeteer-k8s-ingress-name (env :puppeteer-k8s-ingress-name)
+   :puppeteer-k8s-domain (env :puppeteer-k8s-domain)})
 
 (defn -main []
   (component/start
