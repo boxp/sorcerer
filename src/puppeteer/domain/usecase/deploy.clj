@@ -53,7 +53,7 @@
 
 (defn apply
   [{:keys [deploy-repository] :as comp}
-   {:keys [] :as job}]
+   job]
   (let [deployment (prepare-deployment comp job)
         service (prepare-service comp job)]
     (println deployment)
