@@ -36,6 +36,7 @@
   (let [job (get-job job-usecase (:id m))]
     (when job
       (as-> job $
+	(assoc $ :build m)
         (do (send-build-succeed-message message-usecase $) $)
         (do (send-deploy-start-message message-usecase $) $)
         (do (apply deploy-usecase $))))))

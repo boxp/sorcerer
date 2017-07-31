@@ -46,7 +46,7 @@
                  .getBytes
                  io/input-stream))
       (.inNamespace "default")
-      .apply))
+      .createOrReplace))
 
 (defn delete-resource [{:keys [k8s-client] :as comp}
    {:keys [resource]}]
@@ -69,10 +69,10 @@
 (defrecord DeployRepositoryComponent [k8s-client github-client domain ingress-name]
   component/Lifecycle
   (start [this]
-    (println ";; Starting BuildRepositoryComponent")
+    (println ";; Starting DeployRepositoryComponent")
     this)
   (stop [this]
-    (println ";; Stopping BuildRepositoryComponent")
+    (println ";; Stopping DeployRepositoryComponent")
     this))
 
 (defn deploy-repository-component

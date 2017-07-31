@@ -12,6 +12,8 @@
                          [image-name image])
                        (:images conf)
                        (:images build)))]
+    (println job)
+    (println images)
     (map
       #(assoc % :image
               (->> % :name keyword (get images)))
@@ -49,15 +51,17 @@
 
 (defn- prepare-ingress
   [{:keys [deploy-repository]}
-   {:keys [] :as job}])
+   {:keys [conf build user-name repo-name branch-name] :as job}]
+  (let [ingress (deployrepo/get-ingress deploy-repository)]
+    ingress))
 
 (defn apply
   [{:keys [deploy-repository] :as comp}
    job]
   (let [deployment (prepare-deployment comp job)
         service (prepare-service comp job)]
-    (println deployment)
-    (println service)
+    (->> deployment println)
+    (->> service println)
     (deployrepo/apply-resource deploy-repository {:k8s deployment})
     (deployrepo/apply-resource deploy-repository {:k8s service})))
 
