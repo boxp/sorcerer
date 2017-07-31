@@ -12,11 +12,11 @@
                          [image-name image])
                        (:images conf)
                        (:images build)))]
-    (println job)
-    (println images)
     (map
       #(assoc % :image
-              (->> % :name keyword (get images)))
+              (or
+                (->> % :name keyword (get images))
+                (:image %)))
       containers)))
 
 (defn- prepare-deployment
