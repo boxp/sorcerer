@@ -58,8 +58,8 @@
         service (prepare-service comp job)]
     (println deployment)
     (println service)
-    (deployrepo/apply-resource deploy-repository deployment)
-    (deployrepo/apply-resource deploy-repository service)))
+    (deployrepo/apply-resource deploy-repository {:k8s deployment})
+    (deployrepo/apply-resource deploy-repository {:k8s service})))
 
 (defrecord DeployUsecaseComponent [deploy-repository]
   component/Lifecycle

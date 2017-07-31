@@ -44,7 +44,7 @@
                  yaml/generate-string
                  .getBytes
                  io/input-stream))
-      .createOrReplace))
+      .apply))
 
 (defn delete-resource
   [{:keys [k8s-client] :as comp}
