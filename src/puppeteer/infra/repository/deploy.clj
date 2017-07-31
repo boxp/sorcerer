@@ -21,6 +21,7 @@
   (-> k8s-client
       :client
       (.resource resource)
+      (.inNamespace "default")
       .apply))
 
 (defn get-resource
@@ -44,10 +45,10 @@
                  yaml/generate-string
                  .getBytes
                  io/input-stream))
+      (.inNamespace "default")
       .apply))
 
-(defn delete-resource
-  [{:keys [k8s-client] :as comp}
+(defn delete-resource [{:keys [k8s-client] :as comp}
    {:keys [resource]}]
   (-> k8s-client
       :client
