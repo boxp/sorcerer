@@ -47,12 +47,13 @@
         app (str repo-name "-" branch-name)]
     (-> service
         (assoc-in [:metadata :name] app)
-        (assoc-in [:selector :app] app))))
+        (assoc-in [:spec :selector :app] app))))
 
 (defn- prepare-ingress
   [{:keys [deploy-repository]}
    {:keys [conf build user-name repo-name branch-name] :as job}]
   (let [ingress (deployrepo/get-ingress deploy-repository)]
+    (println ingress)
     ingress))
 
 (defn apply

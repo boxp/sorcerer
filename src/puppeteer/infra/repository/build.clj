@@ -71,6 +71,7 @@
           (assoc :channel c))))
   (stop [this]
     (println ";; Stopping BuildRepositoryComponent")
+    (doall (map #(.stopAsync %) (-> this :pubsub-subscription :subscribers)))
     (close! (:channel this))
     (-> this
         (dissoc :channel))))

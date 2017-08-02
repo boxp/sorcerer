@@ -31,7 +31,8 @@
                                com.google.guava/guava]]
                  [com.google.apis/google-api-services-cloudbuild "v1-rev597-1.22.0"
                   :exclusions [com.google.guava/guava
-                               com.google.guava/guava-jdk5]]]
+                               com.google.guava/guava-jdk5]]
+                 [com.google.apis/google-api-services-dns "v1-rev44-1.22.0"]]
   :profiles
   {:dev {:source-paths ["src" "dev"]}
    :uberjar {:main puppeteer.system}})

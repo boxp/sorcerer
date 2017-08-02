@@ -8,6 +8,7 @@
             [puppeteer.infra.client.slack-rtm :refer [slack-rtm-component]]
             [puppeteer.infra.client.github :refer [github-component]]
             [puppeteer.infra.client.dynamodb :refer [dynamodb-component]]
+            [puppeteer.infra.client.cloud-dns :refer [cloud-dns-component]]
             [puppeteer.infra.repository.build :refer [build-repository-component]]
             [puppeteer.infra.repository.deploy :refer [deploy-repository-component]]
             [puppeteer.infra.repository.message :refer [message-repository-component]]
@@ -31,7 +32,8 @@
            puppeteer-dynamodb-endpoint
            puppeteer-pubsub-subscription-name
            puppeteer-k8s-ingress-name
-           puppeteer-k8s-domain] :as conf}]
+           puppeteer-k8s-domain
+           puppeteer-dns-zone] :as conf}]
   (component/system-map
     :container-builder-client (container-builder-client-component)
     :pubsub-subscription (pubsub-subscription-component)
@@ -40,6 +42,7 @@
     :slack-rtm-client (slack-rtm-component puppeteer-slack-token)
     :github-client (github-component puppeteer-github-oauth-token)
     :dynamodb-client (dynamodb-component puppeteer-aws-access-key puppeteer-aws-secret-key puppeteer-dynamodb-endpoint)
+    :cloud-dns-client (cloud-dns-component puppeteer-dns-zone)
     :build-repository (component/using
                         (build-repository-component puppeteer-pubsub-subscription-name)
                         [:container-builder-client
@@ -47,7 +50,8 @@
     :deploy-repository (component/using
                          (deploy-repository-component puppeteer-k8s-domain puppeteer-k8s-ingress-name)
                          [:k8s-client
-                          :github-client])
+                          :github-client
+                          :cloud-dns-client])
     :message-repository (component/using
                           (message-repository-component)
                           [:slack-client
@@ -91,7 +95,8 @@
    :puppeteer-dynamodb-endpoint (env :puppeteer-dynamodb-endpoint)
    :puppeteer-pubsub-subscription-name (env :puppeteer-pubsub-subscription-name)
    :puppeteer-k8s-ingress-name (env :puppeteer-k8s-ingress-name)
-   :puppeteer-k8s-domain (env :puppeteer-k8s-domain)})
+   :puppeteer-k8s-domain (env :puppeteer-k8s-domain)
+   :puppeteer-dns-zone (env :puppeteer-dns-zone)})
 
 (defn -main []
   (component/start

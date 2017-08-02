@@ -2,7 +2,8 @@
   (:require [clojure.java.io :as io]
             [clj-yaml.core :as yaml]
             [com.stuartsierra.component :as component]
-            [puppeteer.infra.client.github :as github]))
+            [puppeteer.infra.client.github :as github])
+  (:import (com.google.api.services.dns.model Change ResourceRecordSet)))
 
 (defn get-ingress
   [{:keys [k8s-client ingress-name] :as comp}]
@@ -64,9 +65,48 @@
   (-> k8s-client
       :client
       .services
-      (.withName "eure-atnd")))
+      (.withName app)))
 
-(defrecord DeployRepositoryComponent [k8s-client github-client domain ingress-name]
+(defn add-subdomain
+  [{:keys [cloud-dns-client domain] :as comp}
+   {:keys [repo-name branch-name]}]
+  (try
+    (let [resource-record-set (-> (ResourceRecordSet.)
+                                  (.setKind "dns#resourceRecordSet")
+                                  (.setType "CNAME")
+                                  (.setName (str repo-name "-" branch-name "." domain "."))
+                                  (.setTtl (int 300))
+                                  (.setRrdatas [(str domain ".")]))
+          change (-> (Change.)
+                     (.setKind "dns#change")
+                     (.setAdditions [resource-record-set]))]
+      (-> (:client cloud-dns-client)
+          .changes
+          (.create (:project-id cloud-dns-client) (:dns-zone cloud-dns-client) change)
+          .execute))
+    (catch Exception e
+      (case (.getStatusCode e)
+        409 nil
+        (throw e)))))
+
+(defn remove-subdomain
+  [{:keys [cloud-dns-client domain] :as comp}
+   {:keys [repo-name branch-name]}]
+  (let [resource-record-set (-> (ResourceRecordSet.)
+                                (.setKind "dns#resourceRecordSet")
+                                (.setType "CNAME")
+                                (.setName (str repo-name "-" branch-name "." domain "."))
+                                (.setTtl (int 300))
+                                (.setRrdatas [(str domain ".")]))
+        change (-> (Change.)
+                   (.setKind "dns#change")
+                   (.setDeletions [resource-record-set]))]
+    (-> (:client cloud-dns-client)
+        .changes
+        (.create (:project-id cloud-dns-client) (:dns-zone cloud-dns-client) change)
+        .execute)))
+
+(defrecord DeployRepositoryComponent [k8s-client github-client cloud-dns-client domain ingress-name]
   component/Lifecycle
   (start [this]
     (println ";; Starting DeployRepositoryComponent")

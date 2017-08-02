@@ -3,7 +3,7 @@
             [com.stuartsierra.component :as component]
             [puppeteer.domain.entity.message :refer [map->Message map->Attachment map->Field]]
             [puppeteer.domain.entity.job :refer [map->Job]]
-            [puppeteer.domain.usecase.message :refer [send-deploy-message send-help-message send-build-succeed-message send-build-failure-message send-deploy-start-message subscribe-message]]
+            [puppeteer.domain.usecase.message :as message-usecase]
             [puppeteer.domain.usecase.build :refer [build subscribe-build-message]]
             [puppeteer.domain.usecase.conf :refer [load-conf]]
             [puppeteer.domain.usecase.job :refer [get-job set-job]]
@@ -13,7 +13,7 @@
   [{:keys [message-usecase build-usecase]}
    m
    _]
-  (send-help-message
+  (message-usecase/send-help-message
     message-usecase
     {:message m}))
 
@@ -26,8 +26,8 @@
                    :branch-name branch-name
                    :message m}) $
     (assoc $ :conf (load-conf conf-usecase $))
-    (do (send-deploy-message message-usecase $) $)
     (assoc-in $ [:build :id] (build build-usecase $))
+    (do (message-usecase/send-deploy-start-message message-usecase $) $)
     (set-job job-usecase $)))
 
 (defn- build-succeed
@@ -37,8 +37,8 @@
     (when job
       (as-> job $
 	(assoc $ :build m)
-        (do (send-build-succeed-message message-usecase $) $)
-        (do (send-deploy-start-message message-usecase $) $)
+        (do (message-usecase/send-build-succeed-message message-usecase $) $)
+        (do (message-usecase/send-deploy-start-message message-usecase $) $)
         (do (apply deploy-usecase $))))))
 
 (defn- build-failure
@@ -46,7 +46,7 @@
    m]
   (let [job (get-job job-usecase (:id m))]
     (when job
-      (send-build-failure-message message-usecase job))))
+      (message-usecase/send-build-failure-message message-usecase job))))
 
 (defmulti reaction
   (fn [_ m] (:type m)))
@@ -67,14 +67,14 @@
   (case (:status m)
     "SUCCESS" (build-succeed comp m)
     "FAILURE" (build-failure comp m)
-    nil))
+    (println m)))
 
 (defmethod reaction :default
   [_ _])
 
 (defn alice-loop
   [{:keys [message-usecase build-usecase] :as comp}]
-  (let [message-chan (subscribe-message message-usecase)
+  (let [message-chan (message-usecase/subscribe-message message-usecase)
         build-chan (subscribe-build-message build-usecase)]
     (async/go-loop [m {}]
       (when m

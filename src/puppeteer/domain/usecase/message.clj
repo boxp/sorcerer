@@ -58,6 +58,17 @@
        map->Message
        (r/send-message message-repository)))
 
+(defn send-deploy-succeed-message
+  [{:keys [message-repository]}
+   {:keys [message user-name repo-name branch-name]}]
+  (->> {:channel-id (:channel-id message)
+        :user-id (:user-id message)
+        :text ""
+        :attachments [(map->Attachment
+                        {:text (str ":tada: Deploy Completed! " user-name "/" repo-name "/" branch-name)})]}
+       map->Message
+       (r/send-message message-repository)))
+
 (defn update-message
   [{:keys [message-repository]}
    {:keys [message]}]

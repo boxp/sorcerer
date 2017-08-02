@@ -50,3 +50,8 @@ spec:
               secretKeyRef:
                 name: puppeteer
                 key: k8s-ingress-name
+          - name: PUPPETEER_DNS_ZONE
+            valueFrom:
+              secretKeyRef:
+                name: puppeteer
+                key: dns-zone

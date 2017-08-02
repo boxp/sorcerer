@@ -12,6 +12,7 @@
                          (DefaultKubernetesClient.)))))
   (stop [this]
     (println ";; Stopping K8sClientComponent")
+    (-> this :client .close)
     (-> this
         (dissoc :client))))
 
