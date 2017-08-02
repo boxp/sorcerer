@@ -58,7 +58,6 @@
         ingress (deployrepo/get-ingress deploy-repository)
         spec (.getSpec ingress)
         tls (.getTls spec)
-        hosts (.getHosts tls)
         rules (.getRules spec)]
     (.setSpec ingress
       (doto spec
