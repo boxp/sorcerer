@@ -39,7 +39,8 @@
 	(assoc $ :build m)
         (do (message-usecase/send-build-succeed-message message-usecase $) $)
         (do (message-usecase/send-deploy-start-message message-usecase $) $)
-        (do (apply deploy-usecase $))))))
+        (do (apply deploy-usecase $))
+        (do (message-usecase/send-deploy-succeed-message $) $)))))
 
 (defn- build-failure
   [{:keys [message-usecase build-usecase conf-usecase job-usecase]}

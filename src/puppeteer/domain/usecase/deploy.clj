@@ -53,16 +53,17 @@
   [{:keys [deploy-repository]}
    {:keys [conf build user-name repo-name branch-name] :as job}]
   (let [ingress (deployrepo/get-ingress deploy-repository)]
-    (println ingress)
     ingress))
 
 (defn apply
   [{:keys [deploy-repository] :as comp}
    job]
   (let [deployment (prepare-deployment comp job)
-        service (prepare-service comp job)]
+        service (prepare-service comp job)
+        ingress (prepare-ingress comp job)]
     (->> deployment println)
     (->> service println)
+    (->> ingress println)
     (deployrepo/apply-resource deploy-repository {:k8s deployment})
     (deployrepo/apply-resource deploy-repository {:k8s service})))
 
