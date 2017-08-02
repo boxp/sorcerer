@@ -63,10 +63,13 @@
     (.setSpec ingress
       (doto spec
           (.setTls
-            (.setHosts tls
-              (if (some #(= % host) hosts)
-                hosts
-                (.add hosts host))))
+            (map
+              (fn [tls]
+                (.setHosts tls
+                  (if (some #(= % host) hosts)
+                    hosts
+                    (.add hosts host))))
+              tls))
           (.setRules
             (if (some #(= (:host %) host) rules)
               rules

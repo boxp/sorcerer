@@ -59,13 +59,13 @@
        (r/send-message message-repository)))
 
 (defn send-deploy-succeed-message
-  [{:keys [message-repository]}
+  [{:keys [message-repository domain]}
    {:keys [message user-name repo-name branch-name]}]
   (->> {:channel-id (:channel-id message)
         :user-id (:user-id message)
         :text ""
         :attachments [(map->Attachment
-                        {:text (str ":tada: Deploy Completed! " user-name "/" repo-name "/" branch-name)})]}
+                        {:text (str ":tada: Deploy Completed! " "https://" repo-name "-" branch-name "." domain)})]}
        map->Message
        (r/send-message message-repository)))
 
@@ -78,7 +78,7 @@
   [{:keys [message-repository]}]
   (r/subscribe-message message-repository))
 
-(defrecord MessageUsecaseComponent [message-repository]
+(defrecord MessageUsecaseComponent [message-repository domain]
   component/Lifecycle
   (start [{:keys [message-repository] :as this}]
     (println ";; Starting MessageUsecaseComponent")
@@ -88,5 +88,5 @@
     this))
 
 (defn message-usecase-component
-  []
-  (map->MessageUsecaseComponent {}))
+  [domain]
+  (map->MessageUsecaseComponent {:domain domain}))

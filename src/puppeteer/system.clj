@@ -67,7 +67,7 @@
                      [:build-repository
                       :conf-repository])
     :message-usecase (component/using
-                       (message-usecase-component)
+                       (message-usecase-component puppeteer-k8s-domain)
                        [:message-repository])
     :conf-usecase (component/using
                     (configuration-usecase-component)

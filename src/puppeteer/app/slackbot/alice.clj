@@ -27,7 +27,7 @@
                    :message m}) $
     (assoc $ :conf (load-conf conf-usecase $))
     (assoc-in $ [:build :id] (build build-usecase $))
-    (do (message-usecase/send-deploy-start-message message-usecase $) $)
+    (do (message-usecase/send-deploy-message message-usecase $) $)
     (set-job job-usecase $)))
 
 (defn- build-succeed
