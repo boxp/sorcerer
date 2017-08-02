@@ -40,7 +40,7 @@
         (do (message-usecase/send-build-succeed-message message-usecase $) $)
         (do (message-usecase/send-deploy-start-message message-usecase $) $)
         (do (apply deploy-usecase $))
-        (do (message-usecase/send-deploy-succeed-message $) $)))))
+        (do (message-usecase/send-deploy-succeed-message message-usecase $) $)))))
 
 (defn- build-failure
   [{:keys [message-usecase build-usecase conf-usecase job-usecase]}
