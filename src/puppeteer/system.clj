@@ -76,7 +76,7 @@
                    (job-usecase-component)
                    [:job-repository])
     :deploy-usecase (component/using
-                      (deploy-usecase-component)
+                      (deploy-usecase-component puppeteer-k8s-domain)
                       [:deploy-repository])
     :alice (component/using
              (alice-component)

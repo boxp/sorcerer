@@ -1,4 +1,5 @@
 (ns puppeteer.domain.usecase.deploy
+  (:import (io.fabric8.kubernetes.api.model.extensions IngressRule HTTPIngressRuleValue HTTPIngressPath IngressBackend))
   (:require [com.stuartsierra.component :as component]
             [flatland.ordered.map :refer [ordered-map]]
             [puppeteer.infra.repository.deploy :as deployrepo]))
@@ -50,10 +51,33 @@
         (assoc-in [:spec :selector :app] app))))
 
 (defn- prepare-ingress
-  [{:keys [deploy-repository]}
+  [{:keys [deploy-repository domain]}
    {:keys [conf build user-name repo-name branch-name] :as job}]
-  (let [ingress (deployrepo/get-ingress deploy-repository)]
-    ingress))
+  (let [host (str repo-name "-" branch-name "." domain)
+        service-name (str repo-name "-" branch-name)
+        ingress (deployrepo/get-ingress deploy-repository)
+        spec (.getSpec ingress)
+        tls (.getTls spec)
+        hosts (.getHosts tls)
+        rules (.getRules spec)]
+    (.setSpec ingress
+      (doto spec
+          (.setTls
+            (.setHosts tls
+              (if (some #(= % host) hosts)
+                hosts
+                (.add hosts host))))
+          (.setRules
+            (if (some #(= (:host %) host) rules)
+              rules
+              (.add rules
+                (IngressRule. host
+                  (HTTPIngressRuleValue.
+                    [(HTTPIngressPath.
+                       (IngressBackend.
+                         service-name
+                         80)
+                       "/*")])))))))))
 
 (defn apply
   [{:keys [deploy-repository] :as comp}
@@ -65,9 +89,10 @@
     (->> service println)
     (->> ingress println)
     (deployrepo/apply-resource deploy-repository {:k8s deployment})
-    (deployrepo/apply-resource deploy-repository {:k8s service})))
+    (deployrepo/apply-resource deploy-repository {:k8s service})
+    (deployrepo/apply-ingress deploy-repository ingress)))
 
-(defrecord DeployUsecaseComponent [deploy-repository]
+(defrecord DeployUsecaseComponent [deploy-repository domain]
   component/Lifecycle
   (start [this]
     (println ";; Starting DeployUsecaseComponent")
@@ -77,5 +102,5 @@
     this))
 
 (defn deploy-usecase-component
-  []
-  (map->DeployUsecaseComponent {}))
+  [domain]
+  (map->DeployUsecaseComponent {:domain domain}))
