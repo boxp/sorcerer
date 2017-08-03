@@ -34,6 +34,7 @@
     (-> deployment
         (assoc-in [:metadata :name] app)
         (assoc-in [:spec :template :metadata :labels :app] app)
+        (assoc-in [:spec :replicas] 1)
         (update-in [:spec :template :spec :containers]
                    #(update-containers-image job %)))))
 
