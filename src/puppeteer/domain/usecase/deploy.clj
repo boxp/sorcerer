@@ -79,7 +79,7 @@
                     [(HTTPIngressPath.
                        (IngressBackend.
                          service-name
-                         80)
+                         (int 80))
                        "/*")])))))))))
 
 (defn apply
