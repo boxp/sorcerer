@@ -1,5 +1,6 @@
 (ns puppeteer.domain.usecase.deploy
-  (:import (io.fabric8.kubernetes.api.model.extensions IngressRule HTTPIngressRuleValue HTTPIngressPath IngressBackend))
+  (:import (io.fabric8.kubernetes.api.model IntOrString)
+           (io.fabric8.kubernetes.api.model.extensions IngressRule HTTPIngressRuleValue HTTPIngressPath IngressBackend))
   (:require [com.stuartsierra.component :as component]
             [flatland.ordered.map :refer [ordered-map]]
             [puppeteer.infra.repository.deploy :as deployrepo]))
@@ -79,7 +80,7 @@
                     [(HTTPIngressPath.
                        (IngressBackend.
                          service-name
-                         (int 80))
+                         (-> 80 int IntOrString.))
                        "/*")])))))))
     ingress))
 
