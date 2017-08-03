@@ -69,19 +69,21 @@
                   (.setHosts tls
                     (if (some #(= % host) hosts)
                       hosts
-                      (.add hosts host)))))
+                      (doto hosts
+                        (.add host))))))
               tls))
           (.setRules
             (if (some #(= (:host %) host) rules)
               rules
-              (.add rules
-                (IngressRule. host
-                  (HTTPIngressRuleValue.
-                    [(HTTPIngressPath.
-                       (IngressBackend.
-                         service-name
-                         (-> 80 int IntOrString.))
-                       "/*")])))))))
+              (doto rules
+                (.add
+                  (IngressRule. host
+                    (HTTPIngressRuleValue.
+                      [(HTTPIngressPath.
+                         (IngressBackend.
+                           service-name
+                           (-> 80 int IntOrString.))
+                         "/*")]))))))))
     ingress))
 
 (defn apply
