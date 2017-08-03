@@ -80,7 +80,8 @@
                        (IngressBackend.
                          service-name
                          (int 80))
-                       "/*")])))))))))
+                       "/*")])))))))
+    ingress))
 
 (defn apply
   [{:keys [deploy-repository] :as comp}
