@@ -99,7 +99,8 @@
     (->> ingress println)
     (deployrepo/apply-resource deploy-repository {:k8s deployment})
     (deployrepo/apply-resource deploy-repository {:k8s service})
-    (deployrepo/apply-ingress deploy-repository ingress)))
+    (deployrepo/apply-ingress deploy-repository ingress)
+    (deployrepo/add-subdomain deploy-repository job)))
 
 (defrecord DeployUsecaseComponent [deploy-repository domain]
   component/Lifecycle
