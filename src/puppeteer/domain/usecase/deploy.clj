@@ -67,11 +67,12 @@
             (map
               (fn [tls]
                 (let [hosts (.getHosts tls)]
-                  (.setHosts tls
-                    (if (some #(= % host) hosts)
-                      hosts
-                      (doto hosts
-                        (.add host))))))
+                  (doto tls
+                    (.setHosts
+                      (if (some #(= % host) hosts)
+                        hosts
+                        (doto hosts
+                          (.add host)))))))
               tls))
           (.setRules
             (if (some #(= (:host %) host) rules)
