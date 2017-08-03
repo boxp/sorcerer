@@ -65,7 +65,8 @@
         :user-id (:user-id message)
         :text ""
         :attachments [(map->Attachment
-                        {:text (str ":tada: Deploy Completed! " "https://" repo-name "-" branch-name "." domain)})]}
+                        {:text (str ":tada: Deploy Completed! " "https://" repo-name "-" branch-name "." domain)
+			 :color "good"})]}
        map->Message
        (r/send-message message-repository)))
 
