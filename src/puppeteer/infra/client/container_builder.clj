@@ -24,7 +24,7 @@
     (println ";; Starting ContainerBuilderClientComponent")
     (-> this
         (assoc :project-id (ServiceOptions/getDefaultProjectId))
-        (assoc :access-token (-> (doto (GoogleCredential/getApplicationDefault) .refreshToken)
+        (assoc :access-token (-> (GoogleCredential/getApplicationDefault)
                                  .getAccessToken))
         (assoc :client (-> (CloudBuild$Builder. (GoogleNetHttpTransport/newTrustedTransport)
                                                 (JacksonFactory.)
