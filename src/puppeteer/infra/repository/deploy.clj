@@ -59,13 +59,26 @@
                  io/input-stream))
       .delete))
 
+(defn delete-deployment
+  [{:keys [k8s-client] :as comp}
+   {:keys [app]}]
+  (-> k8s-client
+      :client
+      .extensions
+      .deployments
+      (.inNamespace "default")
+      (.withName app)
+      .delete))
+
 (defn delete-service
   [{:keys [k8s-client] :as comp}
    {:keys [app]}]
   (-> k8s-client
       :client
       .services
-      (.withName app)))
+      (.inNamespace "default")
+      (.withName app)
+      .delete))
 
 (defn add-subdomain
   [{:keys [cloud-dns-client domain] :as comp}

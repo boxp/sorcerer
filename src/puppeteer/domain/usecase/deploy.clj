@@ -94,13 +94,18 @@
   (let [deployment (prepare-deployment comp job)
         service (prepare-service comp job)
         ingress (prepare-ingress comp job)]
-    (->> deployment println)
-    (->> service println)
-    (->> ingress println)
     (deployrepo/apply-resource deploy-repository {:k8s deployment})
     (deployrepo/apply-resource deploy-repository {:k8s service})
     (deployrepo/apply-ingress deploy-repository ingress)
     (deployrepo/add-subdomain deploy-repository job)))
+
+(defn round-up
+  [{:keys [deploy-repository] :as comp}
+   job]
+  (let [app (str (:repo-name job) "-" (:branch-name job))]
+    (deployrepo/delete-service deploy-repository {:app app})
+    (deployrepo/delete-deployment deploy-repository {:app app})
+    (deployrepo/remove-subdomain deploy-repository job)))
 
 (defrecord DeployUsecaseComponent [deploy-repository domain]
   component/Lifecycle

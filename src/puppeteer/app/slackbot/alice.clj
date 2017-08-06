@@ -7,7 +7,7 @@
             [puppeteer.domain.usecase.build :refer [build subscribe-build-message]]
             [puppeteer.domain.usecase.conf :refer [load-conf]]
             [puppeteer.domain.usecase.job :refer [get-job set-job]]
-            [puppeteer.domain.usecase.deploy :refer [apply]]))
+            [puppeteer.domain.usecase.deploy :as deploy-usecase]))
 
 (defn- help
   [{:keys [message-usecase build-usecase]}
@@ -38,6 +38,26 @@
                                                    :branch-name branch-name
                                                    :error-message (.getMessage e)}))))
 
+(defn- round-up
+  [{:keys [message-usecase deploy-usecase]}
+   m
+   [_ _ user-name repo-name branch-name]]
+  (try
+    (as-> (map->Job {:user-name user-name
+                    :repo-name repo-name
+                    :branch-name branch-name
+                    :message m}) $
+      (do (deploy-usecase/round-up deploy-usecase $) $)
+      (do (message-usecase/send-round-up-succeed-message message-usecase $) $))
+    (catch Exception e
+      (message-usecase/send-round-up-failure-message
+        message-usecase
+        {:message m
+         :user-name user-name
+         :repo-name repo-name
+         :branch-name branch-name
+         :error-message (.getMessage e)}))))
+
 (defn- build-succeed
   [{:keys [message-usecase build-usecase conf-usecase job-usecase deploy-usecase]}
    m]
@@ -48,7 +68,7 @@
           (assoc $ :build m)
           (do (message-usecase/send-build-succeed-message message-usecase $) $)
           (do (message-usecase/send-deploy-start-message message-usecase $) $)
-          (do (apply deploy-usecase $) $)
+          (do (deploy-usecase/apply deploy-usecase $) $)
           (do (message-usecase/send-deploy-succeed-message message-usecase $) $))
         (catch Exception e
           (message-usecase/send-deploy-failure-message
@@ -69,12 +89,13 @@
 (defmethod reaction :message
   [{:keys [message-usecase build-usecase] :as comp}
    m]
-  (let [txt (some-> m :text (clojure.string/split #" "))
-        [_ command _] txt]
+  (let [args (some-> m :text (clojure.string/split #" "))
+        [_ command _] args]
     (if (:for-me? m)
       (case command
-        "deploy" (async/go (deploy comp m txt))
-        (help comp m txt)))))
+        "deploy" (async/go (deploy comp m args))
+        "round-up" (async/go (round-up comp m args))
+        (help comp m args)))))
 
 (defmethod reaction :build
   [{:keys [message-usecase build-usecase] :as comp}

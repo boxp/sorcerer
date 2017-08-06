@@ -10,7 +10,8 @@
         :user-id (:user-id message)
         :text ":dolls:"
         :attachments [(map->Attachment
-                        {:text (str ":rocket: Deploy: @alc deploy <user-name> <repository-name> <branch-name>")})]}
+                        {:text (str ":rocket: Deploy: @alc deploy <user-name> <repository-name> <branch-name>" "\n"
+                                    ":wastebasket: RoundUp: @alc round-up <user-name> <repository-name> <branch-name>")})]}
        map->Message
        (r/send-message message-repository)))
 
@@ -43,11 +44,8 @@
         :user-id (:user-id message)
         :text ""
         :attachments [(map->Attachment
-                        {:text (str ":innocent: Building Failure... " user-name "/" repo-name "/" branch-name "\n"
-                                    (when error-message
-                                      "```"
-                                      error-message
-                                      "```"))
+                        {:pretext (str ":innocent: Building Failure... " user-name "/" repo-name "/" branch-name)
+                         :text error-message
                          :color "danger"})]}
        map->Message
        (r/send-message message-repository)))
@@ -81,10 +79,33 @@
         :user-id (:user-id message)
         :text ""
         :attachments [(map->Attachment
-                        {:text (str ":innocent: Deploy Failure... " user-name "/" repo-name "/" branch-name "\n"
-                                    "```"
-                                    error-message
-                                    "```")
+                        {:pretext (str ":innocent: Deploy Failure... " user-name "/" repo-name "/" branch-name)
+                         :text (str error-message)
+			 :color "danger"})]}
+       map->Message
+       (r/send-message message-repository)))
+
+(defn send-round-up-succeed-message
+  [{:keys [message-repository]}
+   {:keys [message user-name repo-name branch-name]}]
+  (->> {:channel-id (:channel-id message)
+        :user-id (:user-id message)
+        :text ""
+        :attachments [(map->Attachment
+                        {:text (str ":wave: RoundUp Completed! " user-name "/" repo-name "/" branch-name)
+			 :color "good"})]}
+       map->Message
+       (r/send-message message-repository)))
+
+(defn send-round-up-failure-message
+  [{:keys [message-repository]}
+   {:keys [message user-name repo-name branch-name error-message]}]
+  (->> {:channel-id (:channel-id message)
+        :user-id (:user-id message)
+        :text ""
+        :attachments [(map->Attachment
+                        {:pretext (str ":innocent: RoundUp Failure... " user-name "/" repo-name "/" branch-name)
+                         :text error-message
 			 :color "danger"})]}
        map->Message
        (r/send-message message-repository)))
