@@ -38,12 +38,16 @@
 
 (defn send-build-failure-message
   [{:keys [message-repository]}
-   {:keys [message user-name repo-name branch-name]}]
+   {:keys [message user-name repo-name branch-name error-message]}]
   (->> {:channel-id (:channel-id message)
         :user-id (:user-id message)
         :text ""
         :attachments [(map->Attachment
-                        {:text (str ":innocent: Building Failure... " user-name "/" repo-name "/" branch-name)
+                        {:text (str ":innocent: Building Failure... " user-name "/" repo-name "/" branch-name "\n"
+                                    (when error-message
+                                      "```"
+                                      error-message
+                                      "```"))
                          :color "danger"})]}
        map->Message
        (r/send-message message-repository)))
@@ -67,6 +71,21 @@
         :attachments [(map->Attachment
                         {:text (str ":tada: Deploy Completed! " "https://" repo-name "-" branch-name "." domain)
 			 :color "good"})]}
+       map->Message
+       (r/send-message message-repository)))
+
+(defn send-deploy-failure-message
+  [{:keys [message-repository domain]}
+   {:keys [message user-name repo-name branch-name error-message]}]
+  (->> {:channel-id (:channel-id message)
+        :user-id (:user-id message)
+        :text ""
+        :attachments [(map->Attachment
+                        {:text (str ":innocent: Deploy Failure... " user-name "/" repo-name "/" branch-name "\n"
+                                    "```"
+                                    error-message
+                                    "```")
+			 :color "danger"})]}
        map->Message
        (r/send-message message-repository)))
 
