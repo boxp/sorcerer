@@ -22,7 +22,7 @@
         :user-id (:user-id message)
         :text ""
         :attachments [(map->Attachment
-                        {:text (str ":loading: Building " user-name "/" repo-name "/" branch-name " ...")})]}
+                        {:text (str ":hammer_and_wrench: Building " user-name "/" repo-name "/" branch-name " ...")})]}
        map->Message
        (r/send-message message-repository)))
 
@@ -56,7 +56,7 @@
   (->> {:channel-id (:channel-id message)
         :text ""
         :attachments [(map->Attachment
-                        {:text (str ":loading: Deploying " user-name "/" repo-name "/" branch-name " ...")})]}
+                        {:text (str ":hammer_and_wrench: Deploying " user-name "/" repo-name "/" branch-name " ...")})]}
        map->Message
        (r/send-message message-repository)))
 
