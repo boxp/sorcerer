@@ -38,7 +38,7 @@
                                                    :branch-name branch-name
                                                    :error-message (.getMessage e)}))))
 
-(defn- round-up
+(defn- roundup
   [{:keys [message-usecase deploy-usecase]}
    m
    [_ _ user-name repo-name branch-name]]
@@ -94,7 +94,7 @@
     (if (:for-me? m)
       (case command
         "deploy" (async/go (deploy comp m args))
-        "round-up" (async/go (round-up comp m args))
+        "roundup" (async/go (roundup comp m args))
         (help comp m args)))))
 
 (defmethod reaction :build
