@@ -11,22 +11,22 @@
 
 (defn create-build
   [{:keys [project-id client access-token] :as comp} build]
-  (println access-token)
+  (println (-> (GoogleCredential/getApplicationDefault) .getAccessToken))
   (-> client
       .projects
       .builds
       (.create project-id build)
-      (.setAccessToken access-token)
+      (.setAccessToken
+        (-> (GoogleCredential/getApplicationDefault) .getAccessToken))
       .execute))
 
-(defrecord ContainerBuilderClientComponent [project-id client access-token]
+(defrecord ContainerBuilderClientComponent [project-id client]
   component/Lifecycle
   (start [this]
     (println ";; Starting ContainerBuilderClientComponent")
+    (.refreshToken (GoogleCredential/getApplicationDefault))
     (-> this
         (assoc :project-id (ServiceOptions/getDefaultProjectId))
-        (assoc :access-token (-> (doto (GoogleCredential/getApplicationDefault) .refreshToken)
-                                 .getAccessToken))
         (assoc :client (-> (CloudBuild$Builder. (GoogleNetHttpTransport/newTrustedTransport)
                                                 (JacksonFactory.)
                                                 nil)
