@@ -11,6 +11,7 @@
 
 (defn create-build
   [{:keys [project-id client access-token] :as comp} build]
+  (println access-token)
   (-> client
       .projects
       .builds
