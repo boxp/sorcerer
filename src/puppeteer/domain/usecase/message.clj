@@ -11,7 +11,7 @@
         :text ":dolls:"
         :attachments [(map->Attachment
                         {:text (str ":rocket: Deploy: @alc deploy <user-name> <repository-name> <branch-name>" "\n"
-                                    ":wastebasket: RoundUp: @alc round-up <user-name> <repository-name> <branch-name>")})]}
+                                    ":wastebasket: RoundUp: @alc roundup <user-name> <repository-name> <branch-name>")})]}
        map->Message
        (r/send-message message-repository)))
 
