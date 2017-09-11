@@ -22,6 +22,7 @@
                       (.setName (-> % :name)))
                    (-> build :steps))
         images (-> build :images)]
+    (println steps)
     (doto (Build.)
       (.setSource source)
       (.setSteps steps)
