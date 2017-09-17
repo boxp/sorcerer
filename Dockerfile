@@ -1,4 +1,4 @@
-FROM clojure
+FROM clojure:alpine
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY project.clj /usr/src/app/
