@@ -7,6 +7,9 @@
             [puppeteer.infra.client.container-builder :as gccb-cli]
             [puppeteer.infra.client.pubsub :as pubsub-cli]))
 
+(def default-build-timeout
+  "10.0m")
+
 (defn- build->Build
   [build]
   (let [repo-source (doto (RepoSource.)
@@ -21,11 +24,13 @@
                       (.setArgs (-> % :args))
                       (.setName (-> % :name)))
                    (-> build :steps))
-        images (-> build :images)]
+        images (-> build :images)
+        timeout (or (:timeout build) default-build-timeout)]
     (doto (Build.)
       (.setSource source)
       (.setSteps steps)
-      (.setImages images))))
+      (.setImages images)
+      (.setTimeout timeout))))
 
 (defn- BuildMessage->build-message
   [m]

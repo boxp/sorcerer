@@ -4,4 +4,4 @@
   [deployment service])
 
 (defrecord Configuration
-  [steps images k8s])
+  [steps images k8s timeout])
