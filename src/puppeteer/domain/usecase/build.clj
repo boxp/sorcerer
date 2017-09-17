@@ -5,6 +5,8 @@
             [puppeteer.infra.repository.build :as buildrepo]
             [puppeteer.infra.repository.conf :as confrepo]))
 
+(def build-timeout "30.0m")
+
 (defn example-build
   [{:keys [build-repository] :as comp}]
   (let [build {:source {:repo-source {:project-id "boxp-tk"
@@ -22,7 +24,8 @@
                                       :repo-name repo-name
                                       :branch-name branch-name}}
                :steps (:steps conf)
-               :images (some->> conf :images vals)}]
+               :images (some->> conf :images vals)
+               :timeout build-timeout}]
     (buildrepo/create-build build-repository build)))
 
 (defn subscribe-build-message
