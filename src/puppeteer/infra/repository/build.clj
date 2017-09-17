@@ -8,7 +8,7 @@
             [puppeteer.infra.client.pubsub :as pubsub-cli]))
 
 (def default-build-timeout
-  "10.0m")
+  "600.0s")
 
 (defn- build->Build
   [build]
