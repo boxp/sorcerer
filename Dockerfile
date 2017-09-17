@@ -1,6 +1,4 @@
 FROM clojure:alpine
-RUN apk add --no-cache \
-	openssh-client
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY project.clj /usr/src/app/
