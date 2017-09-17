@@ -31,12 +31,14 @@
       (do (message-usecase/send-deploy-message message-usecase $) $)
       (set-job job-usecase $))
     (catch Exception e
-      (message-usecase/send-build-failure-message message-usecase
-                                                  {:message m
-                                                   :user-name user-name
-                                                   :repo-name repo-name
-                                                   :branch-name branch-name
-                                                   :error-message (.getMessage e)}))))
+      (do
+        (message-usecase/send-build-failure-message message-usecase
+                                                    {:message m
+                                                     :user-name user-name
+                                                     :repo-name repo-name
+                                                     :branch-name branch-name
+                                                     :error-message (.getMessage e)})
+        (throw e)))))
 
 (defn- roundup
   [{:keys [message-usecase deploy-usecase]}
@@ -50,13 +52,15 @@
       (do (deploy-usecase/round-up deploy-usecase $) $)
       (do (message-usecase/send-round-up-succeed-message message-usecase $) $))
     (catch Exception e
-      (message-usecase/send-round-up-failure-message
-        message-usecase
-        {:message m
-         :user-name user-name
-         :repo-name repo-name
-         :branch-name branch-name
-         :error-message (.getMessage e)}))))
+      (do
+        (message-usecase/send-round-up-failure-message
+          message-usecase
+          {:message m
+           :user-name user-name
+           :repo-name repo-name
+           :branch-name branch-name
+           :error-message (.getMessage e)})
+        (throw e)))))
 
 (defn- build-succeed
   [{:keys [message-usecase build-usecase conf-usecase job-usecase deploy-usecase]}
@@ -71,10 +75,12 @@
           (do (deploy-usecase/apply deploy-usecase $) $)
           (do (message-usecase/send-deploy-succeed-message message-usecase $) $))
         (catch Exception e
-          (message-usecase/send-deploy-failure-message
-            message-usecase
-            (-> job
-                (assoc :error-message (.getMessage e)))))))))
+          (do
+            (message-usecase/send-deploy-failure-message
+              message-usecase
+              (-> job
+                  (assoc :error-message (.getMessage e))))
+            (throw e)))))))
 
 (defn- build-failure
   [{:keys [message-usecase build-usecase conf-usecase job-usecase]}
