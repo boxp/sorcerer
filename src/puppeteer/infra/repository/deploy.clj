@@ -82,12 +82,12 @@
 
 (defn add-subdomain
   [{:keys [cloud-dns-client domain] :as comp}
-   {:keys [repo-name branch-name]}]
+   {:keys [host]}]
   (try
     (let [resource-record-set (-> (ResourceRecordSet.)
                                   (.setKind "dns#resourceRecordSet")
                                   (.setType "CNAME")
-                                  (.setName (str repo-name "-" branch-name "." domain "."))
+                                  (.setName host)
                                   (.setTtl (int 300))
                                   (.setRrdatas [(str domain ".")]))
           change (-> (Change.)
@@ -104,11 +104,11 @@
 
 (defn remove-subdomain
   [{:keys [cloud-dns-client domain] :as comp}
-   {:keys [repo-name branch-name]}]
+   {:keys [host]}]
   (let [resource-record-set (-> (ResourceRecordSet.)
                                 (.setKind "dns#resourceRecordSet")
                                 (.setType "CNAME")
-                                (.setName (str repo-name "-" branch-name "." domain "."))
+                                (.setName host)
                                 (.setTtl (int 300))
                                 (.setRrdatas [(str domain ".")]))
         change (-> (Change.)

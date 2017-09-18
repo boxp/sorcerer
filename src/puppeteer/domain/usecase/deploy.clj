@@ -108,23 +108,31 @@
     ingress))
 
 (defn apply
-  [{:keys [deploy-repository] :as comp}
-   job]
+  [{:keys [domain deploy-repository] :as comp}
+   {:keys [repo-name branch-name] :as job}]
   (let [deployment (prepare-deployment comp job)
         service (prepare-service comp job)
         ingress (prepare-ingress comp job)]
     (deployrepo/apply-resource deploy-repository {:k8s deployment})
     (deployrepo/apply-resource deploy-repository {:k8s service})
     (deployrepo/apply-ingress deploy-repository ingress)
-    (deployrepo/add-subdomain deploy-repository job)))
+    (deployrepo/add-subdomain deploy-repository
+                              {:host
+                               (->host {:domain domain
+                                        :repo-name repo-name
+                                        :branch-name branch-name})})))
 
 (defn round-up
-  [{:keys [deploy-repository] :as comp}
-   job]
+  [{:keys [domain deploy-repository] :as comp}
+   {:keys [repo-name branch-name] :as job}]
   (let [app (->app job)]
     (deployrepo/delete-service deploy-repository {:app app})
     (deployrepo/delete-deployment deploy-repository {:app app})
-    (deployrepo/remove-subdomain deploy-repository job)))
+    (deployrepo/remove-subdomain deploy-repository
+                                 {:host
+                                  (->host {:domain domain
+                                           :repo-name repo-name
+                                           :branch-name branch-name})})))
 
 (defrecord DeployUsecaseComponent [deploy-repository domain]
   component/Lifecycle
