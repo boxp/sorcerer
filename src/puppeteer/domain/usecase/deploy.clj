@@ -1,9 +1,26 @@
 (ns puppeteer.domain.usecase.deploy
   (:import (io.fabric8.kubernetes.api.model IntOrString)
            (io.fabric8.kubernetes.api.model.extensions IngressRule HTTPIngressRuleValue HTTPIngressPath IngressBackend))
-  (:require [com.stuartsierra.component :as component]
+  (:require [clojure.string :as string]
+            [com.stuartsierra.component :as component]
             [flatland.ordered.map :refer [ordered-map]]
             [puppeteer.infra.repository.deploy :as deployrepo]))
+
+(defn- sanitize-name
+  [name]
+  (string/replace name #"[\\\/\_\.]" "-"))
+
+(defn- ->app
+  [{:keys [repo-name branch-name] :as job}]
+  (str (sanitize-name repo-name) "-" (sanitize-name branch-name)))
+
+(defn- ->host
+  [{:keys [domain repo-name branch-name]}]
+  (str (sanitize-name repo-name) "-" (sanitize-name branch-name) "." domain))
+
+(defn- ->service-name
+  [{:keys [repo-name branch-name] :as job}]
+  (str (sanitize-name repo-name) "-" (sanitize-name branch-name)))
 
 (defn- update-containers-image
   [{:keys [conf build] :as job} containers]
@@ -30,7 +47,7 @@
                       :repo repo-name
                       :ref branch-name
                       :path (-> conf :k8s :deployment)})
-        app (str repo-name "-" branch-name)]
+        app (->app job)]
     (-> deployment
         (assoc-in [:metadata :name] app)
         (assoc-in [:spec :template :metadata :labels :app] app)
@@ -47,7 +64,7 @@
                    :repo repo-name
                    :ref branch-name
                    :path (-> conf :k8s :service)})
-        app (str repo-name "-" branch-name)]
+        app (->app job)]
     (-> service
         (assoc-in [:metadata :name] app)
         (assoc-in [:spec :selector :app] app))))
@@ -55,8 +72,10 @@
 (defn- prepare-ingress
   [{:keys [deploy-repository domain]}
    {:keys [conf build user-name repo-name branch-name] :as job}]
-  (let [host (str repo-name "-" branch-name "." domain)
-        service-name (str repo-name "-" branch-name)
+  (let [host (->host {:domain domain
+                      :repo-name repo-name
+                      :branch-name branch-name})
+        service-name (->service-name job)
         ingress (deployrepo/get-ingress deploy-repository)
         spec (.getSpec ingress)
         tls (.getTls spec)
@@ -102,7 +121,7 @@
 (defn round-up
   [{:keys [deploy-repository] :as comp}
    job]
-  (let [app (str (:repo-name job) "-" (:branch-name job))]
+  (let [app (->app job)]
     (deployrepo/delete-service deploy-repository {:app app})
     (deployrepo/delete-deployment deploy-repository {:app app})
     (deployrepo/remove-subdomain deploy-repository job)))
