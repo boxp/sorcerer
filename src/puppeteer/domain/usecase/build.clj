@@ -13,7 +13,8 @@
                                       :branch-name branch-name}}
                :steps (:steps conf)
                :images (some->> conf :images vals)
-               :timeout (:timeout conf)}]
+               :timeout (:timeout conf)
+               :secrets (:secrets conf)}]
     (buildrepo/create-build build-repository build)))
 
 (defn subscribe-build-message
