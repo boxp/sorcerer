@@ -1,5 +1,5 @@
 (ns puppeteer.infra.repository.build
-  (:import (com.google.api.services.cloudbuild.v1.model Build Source RepoSource BuildStep))
+  (:import (com.google.api.services.cloudbuild.v1.model Build Source RepoSource BuildStep Secret))
   (:require [com.stuartsierra.component :as component]
             [clojure.core.async :refer [go put! <! close! chan]]
             [cheshire.core :refer [parse-string]]
@@ -22,15 +22,22 @@
                  (.setRepoSource repo-source))
         steps (map #(doto (BuildStep.)
                       (.setArgs (-> % :args))
-                      (.setName (-> % :name)))
+                      (.setName (-> % :name))
+                      (.setEnv (or (:env %) []))
+                      (.setSecretEnv (or (:secretEnv %) [])))
                    (-> build :steps))
         images (-> build :images)
-        timeout (or (:timeout build) default-build-timeout)]
+        timeout (or (:timeout build) default-build-timeout)
+        secrets (map #(doto (Secret.)
+                        (.setKmsKeyName (:kmsKeyName %))
+                        (.setSecretEnv (java.util.HashMap. (:secretEnv %))))
+                     (or (:secrets build) []))]
     (doto (Build.)
       (.setSource source)
       (.setSteps steps)
       (.setImages images)
-      (.setTimeout timeout))))
+      (.setTimeout timeout)
+      (.setSecrets secrets))))
 
 (defn- BuildMessage->build-message
   [m]

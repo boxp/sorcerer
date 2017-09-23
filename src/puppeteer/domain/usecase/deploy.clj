@@ -112,15 +112,15 @@
    {:keys [repo-name branch-name] :as job}]
   (let [deployment (prepare-deployment comp job)
         service (prepare-service comp job)
-        ingress (prepare-ingress comp job)]
+        ingress (prepare-ingress comp job)
+        host (->host {:domain domain
+                      :repo-name repo-name
+                      :branch-name branch-name})]
     (deployrepo/apply-resource deploy-repository {:k8s deployment})
     (deployrepo/apply-resource deploy-repository {:k8s service})
     (deployrepo/apply-ingress deploy-repository ingress)
-    (deployrepo/add-subdomain deploy-repository
-                              {:host
-                               (->host {:domain domain
-                                        :repo-name repo-name
-                                        :branch-name branch-name})})))
+    (deployrepo/add-subdomain deploy-repository {:host host})
+    {:host host}))
 
 (defn round-up
   [{:keys [domain deploy-repository] :as comp}
