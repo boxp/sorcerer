@@ -87,7 +87,13 @@
    m]
   (let [job (get-job job-usecase (:id m))]
     (when job
-      (message-usecase/send-build-failure-message message-usecase job))))
+      (message-usecase/send-build-failure-message
+        message-usecase
+        {:message (:message job)
+         :user-name (:user-name job)
+         :repo-name (:repo-name job)
+         :branch-name (:branch-name job)
+         :error-message (:logUrl job)}))))
 
 (defmulti reaction
   (fn [_ m] (:type m)))
