@@ -23,6 +23,7 @@
         steps (map #(doto (BuildStep.)
                       (.setArgs (-> % :args))
                       (.setName (-> % :name))
+                      (.setEntrypoint (-> % :entrypoint))
                       (.setEnv (or (:env %) []))
                       (.setSecretEnv (or (:secretEnv %) [])))
                    (-> build :steps))

@@ -4,7 +4,7 @@
 
 (defrecord Source [repo-source])
 
-(defrecord BuildStep [name args])
+(defrecord BuildStep [name args entrypoint])
 
 (defrecord Build [source steps images])
 
