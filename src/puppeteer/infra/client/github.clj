@@ -10,6 +10,13 @@
            (repos/contents user repo path)
            :content))
 
+(defn get-tarball
+  [{:keys [base-opt]}
+   {:keys [user repo ref]}]
+  (core/raw-api-call :get "repos/%s/%s/tarball/%s"
+                     [user repo ref]
+                     base-opt))
+
 (defrecord GithubComponent [github-oauth-token base-opt]
   component/Lifecycle
   (start [{:keys [github-oauth-token] :as this}]
