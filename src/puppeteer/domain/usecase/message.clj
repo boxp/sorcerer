@@ -1,5 +1,6 @@
 (ns puppeteer.domain.usecase.message
   (:require [com.stuartsierra.component :as component]
+            [puppeteer.util :refer [->host]]
             [puppeteer.domain.entity.message :refer [map->Message map->Attachment map->Field]]
             [puppeteer.infra.repository.message :as r]))
 
@@ -67,7 +68,11 @@
         :user-id (:user-id message)
         :text ""
         :attachments [(map->Attachment
-                        {:text (str ":tada: Deploy Completed! " "https://" repo-name "-" branch-name "." domain)
+                        {:text (str ":tada: Deploy Completed! "
+                                    "https://"
+                                    (->host {:domain domain
+                                             :repo-name repo-name
+                                             :branch-name branch-name}))
 			 :color "good"})]}
        map->Message
        (r/send-message message-repository)))

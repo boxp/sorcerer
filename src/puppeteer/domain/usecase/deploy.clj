@@ -1,26 +1,10 @@
 (ns puppeteer.domain.usecase.deploy
   (:import (io.fabric8.kubernetes.api.model IntOrString)
            (io.fabric8.kubernetes.api.model.extensions IngressRule HTTPIngressRuleValue HTTPIngressPath IngressBackend))
-  (:require [clojure.string :as string]
+  (:require [puppeteer.util :refer [->app ->host ->service-name]]
             [com.stuartsierra.component :as component]
             [flatland.ordered.map :refer [ordered-map]]
             [puppeteer.infra.repository.deploy :as deployrepo]))
-
-(defn- sanitize-name
-  [name]
-  (string/replace name #"[\\\/\_\.]" "-"))
-
-(defn- ->app
-  [{:keys [repo-name branch-name] :as job}]
-  (str (sanitize-name repo-name) "-" (sanitize-name branch-name)))
-
-(defn- ->host
-  [{:keys [domain repo-name branch-name]}]
-  (str (sanitize-name repo-name) "-" (sanitize-name branch-name) "." domain))
-
-(defn- ->service-name
-  [{:keys [repo-name branch-name] :as job}]
-  (str (sanitize-name repo-name) "-" (sanitize-name branch-name)))
 
 (defn- update-containers-image
   [{:keys [conf build] :as job} containers]
