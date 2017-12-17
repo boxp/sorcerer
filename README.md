@@ -49,7 +49,7 @@ data:
 ## Usage
 
 1. Create your mirror repository from github to Google Source Repository.
-2. Add `puppet.edn` to project root folder.
+2. Add `puppet.edn` to repository root folder.
 3. Send mention to puppeteer `@<your-bot-name> deploy <repository-user-name> <repository-name> <branch-name>`
 
 ## License
