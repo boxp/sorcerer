@@ -1,5 +1,5 @@
 (ns puppeteer.infra.repository.build
-  (:import (com.google.api.services.cloudbuild.v1.model Build Source RepoSource BuildStep Secret))
+  (:import (com.google.api.services.cloudbuild.v1.model Build Source RepoSource BuildStep Secret Volume))
   (:require [com.stuartsierra.component :as component]
             [clojure.core.async :refer [go put! <! close! chan]]
             [cheshire.core :refer [parse-string]]
@@ -9,6 +9,12 @@
 
 (def default-build-timeout
   "600.0s")
+
+(defn- volume->Volume
+  [volume]
+  (doto (Volume.)
+    (.setName (:name volume))
+    (.setPath (:path volume))))
 
 (defn- build->Build
   [build]
@@ -25,7 +31,8 @@
                       (.setName (-> % :name))
                       (.setEntrypoint (-> % :entrypoint))
                       (.setEnv (or (:env %) []))
-                      (.setSecretEnv (or (:secretEnv %) [])))
+                      (.setSecretEnv (or (:secretEnv %) []))
+                      (.setVolumes (or (map volume->Volume (:volumes %)) [])))
                    (-> build :steps))
         images (-> build :images)
         timeout (or (:timeout build) default-build-timeout)
