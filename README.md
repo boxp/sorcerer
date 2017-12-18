@@ -54,7 +54,7 @@ data:
   aws-access-key: <echo -n "[AWS_ACCESS_KEY]" | base64> # for dynamodb
   aws-secret-key: <echo -n "[AWS_SECRET_KEY]" | base64> # for dynamodb
   dynamodb-endpoint: <echo -n "http://localhost:8001" | base64> # for dynamodb
-  puppeteer-pubsub-subscription-name: <echo -n "puppeteer-cloud-builds" | base64> # for cloud pubsub
+  pubsub-subscription-name: <echo -n "puppeteer-cloud-builds" | base64> # for cloud pubsub
   k8s-domain: <echo -n "[YOUR_DOMAIN_NAME]" | base64>
   k8s-ingress-name: <echo -n "[YOUR_K8S_INGRESS_NAME]" | base64>
   dns-zone: <echo -n "[YOUR_CLOUD_DNS_ZONE]" | base64> # for cloud dns
