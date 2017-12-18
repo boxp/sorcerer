@@ -7,4 +7,4 @@
   [text color fields])
 
 (defrecord Message
-  [channel-id user-id text timestamp attachments for-me?])
+  [channel-id user-id text timestamp attachments for-me? from-me?])
