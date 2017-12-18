@@ -70,7 +70,7 @@ data:
 ```clj
 ;; for more information: https://cloud.google.com/container-builder/docs/build-config#build_steps
 {:steps [{:name "gcr.io/cloud-builders/docker"
-          :args ["build", "-t", "asia.gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA", "."]} ]
+          :args ["build", "-t", "asia.gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA", "."]}]
  :images {:sample-app "asia.gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA"}
  :k8s {:deployment "k8s/deployment.yml"
        :service "k8s/service.yml"}}
