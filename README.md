@@ -49,7 +49,17 @@ data:
 ## Usage
 
 1. Create your mirror repository from github to Google Source Repository.
-2. Add `puppet.edn` to repository root folder.
+2. Add `puppet.edn` to repository root folder(Examples below).
+
+```clj
+;; for more information: https://cloud.google.com/container-builder/docs/build-config#build_steps
+{:steps [{:name "gcr.io/cloud-builders/docker"
+          :args ["build", "-t", "asia.gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA", "."]} ]
+ :images {:sample-app "asia.gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA"}
+ :k8s {:deployment "k8s/deployment.yml"
+       :service "k8s/service.yml"}}
+```
+
 3. Send mention to puppeteer `@<your-bot-name> deploy <repository-user-name> <repository-name> <branch-name>`
 
 ## License
