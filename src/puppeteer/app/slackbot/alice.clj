@@ -103,7 +103,7 @@
    m]
   (let [args (some-> m :text (clojure.string/split #" "))
         [_ command _] args]
-    (if (:for-me? m)
+    (if (and (:for-me? m) (not (:from-me? m)))
       (case command
         "deploy" (async/go (deploy comp m args))
         "roundup" (async/go (roundup comp m args))

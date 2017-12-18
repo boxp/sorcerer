@@ -12,11 +12,12 @@
    :optionals (if attachments {:attachments attachments})})
 
 (defn- Post->Message
-  [{:keys [channel user text ts for-me? optionals] :as post}]
+  [{:keys [channel user text ts for-me? from-me? optionals] :as post}]
   (map->Message {:channel-id channel
                  :user-id user
                  :text text
                  :for-me? for-me?
+                 :from-me? from-me?
                  :timestamp ts
                  :attachments (:attachments optionals)}))
 

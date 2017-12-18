@@ -15,11 +15,20 @@
                                (-> rtm-connection :start :self :id)
                                "\\> .*")))))))
 
+(defn wrap-from-me?
+  [rtm-connection m]
+  (-> m
+      (assoc :from-me?
+             (some->> m
+                      :user
+                      (= (-> rtm-connection :start :self :id))))))
+
 (defn- subscribe-message
   [rtm-connection]
   (let [c (chan)
         f #(some->> %
                     (wrap-for-me? rtm-connection)
+                    (wrap-from-me? rtm-connection)
                     (put! c))]
     (rtm/sub-to-event (:events-publication rtm-connection) :message f)
     c))
