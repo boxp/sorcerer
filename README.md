@@ -40,7 +40,7 @@ A Slackbot for Deploying microservices to GKE Cluster.
 
 1. Add Integration with CircleCI to your GitHub repository.
 2. Add your Google Application Credentials as `$ACCT_AUTH`.
-3. Apply Kubernetes/Secret to your Cluster(Examples below).
+3. Create Kubernetes/Secret to your Cluster(Examples below).
 
 ```yml
 apiVersion: v1
