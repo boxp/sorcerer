@@ -64,8 +64,7 @@
                       [:dynamodb-client])
     :build-usecase (component/using
                      (build-usecase-component)
-                     [:build-repository
-                      :conf-repository])
+                     [:build-repository])
     :message-usecase (component/using
                        (message-usecase-component puppeteer-k8s-domain)
                        [:message-repository])

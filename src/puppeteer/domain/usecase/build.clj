@@ -6,7 +6,7 @@
             [puppeteer.infra.repository.conf :as confrepo]))
 
 (defn build
-  [{:keys [build-repository conf-repository] :as comp}
+  [{:keys [build-repository] :as comp}
    {:keys [conf user-name repo-name branch-name]}]
   (let [build {:source {:repo-source {:project-id (ServiceOptions/getDefaultProjectId)
                                       :repo-name repo-name
@@ -21,7 +21,7 @@
   [{:keys [build-repository] :as comp}]
   (buildrepo/get-build-message build-repository))
 
-(defrecord BuildUsecaseComponent [build-repository conf-repository]
+(defrecord BuildUsecaseComponent [build-repository]
   component/Lifecycle
   (start [this]
     (println ";; Starting BuildUsecaseComponent")

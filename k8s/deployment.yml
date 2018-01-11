@@ -55,3 +55,6 @@ spec:
               secretKeyRef:
                 name: puppeteer
                 key: dns-zone
+        resources:
+          requests:
+            cpu: 20m
