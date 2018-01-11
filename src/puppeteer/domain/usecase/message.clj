@@ -45,8 +45,8 @@
         :user-id (:user-id message)
         :text ""
         :attachments [(map->Attachment
-                        {:pretext (str ":innocent: Building Failure... " user-name "/" repo-name "/" branch-name)
-                         :text error-message
+                        {:text (str ":innocent: Building Failure... " user-name "/" repo-name "/" branch-name "\n"
+                                    error-message)
                          :color "danger"})]}
        map->Message
        (r/send-message message-repository)))
