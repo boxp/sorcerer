@@ -85,7 +85,6 @@
 (defn- build-failure
   [{:keys [message-usecase build-usecase conf-usecase job-usecase]}
    m]
-  (println m)
   (let [job (get-job job-usecase (:id m))]
     (when job
       (message-usecase/send-build-failure-message
@@ -94,7 +93,7 @@
          :user-name (:user-name job)
          :repo-name (:repo-name job)
          :branch-name (:branch-name job)
-         :error-message (:logUrl job)}))))
+         :error-message (:logUrl m)}))))
 
 (defmulti reaction
   (fn [_ m] (:type m)))
