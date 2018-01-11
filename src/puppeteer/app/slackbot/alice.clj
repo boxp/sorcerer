@@ -85,6 +85,7 @@
 (defn- build-failure
   [{:keys [message-usecase build-usecase conf-usecase job-usecase]}
    m]
+  (println m)
   (let [job (get-job job-usecase (:id m))]
     (when job
       (message-usecase/send-build-failure-message
