@@ -60,7 +60,7 @@
   :ret map?)
 (defn get-resource
   [{:keys [github-client] :as comp}
-   {:keys [user repo ref path] :as :opts}]
+   {:keys [user repo ref path] :as opts}]
   (some-> (github/get-file
             github-client
             {:user user
@@ -82,7 +82,8 @@
       (.inNamespace "default")
       .createOrReplace))
 
-(defn delete-resource [{:keys [k8s-client] :as comp}
+(defn delete-resource
+  [{:keys [k8s-client] :as comp}
    {:keys [resource]}]
   (-> k8s-client
       :client
