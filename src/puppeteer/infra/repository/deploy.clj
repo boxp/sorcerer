@@ -5,12 +5,14 @@
             [com.stuartsierra.component :as component]
             [puppeteer.infra.client.github :as github]
             [puppeteer.infra.client.k8s :as k8s]
-            [puppeteer.infra.client.cloud-dns :as cloud-dns])
+            [puppeteer.infra.client.cloud-dns :as cloud-dns]
+            [puppeteer.domain.entity.conf :as conf-entity])
   (:import (io.fabric8.kubernetes.api.model.extensions Ingress)
            (com.google.api.services.dns.model Change ResourceRecordSet)))
 
 (s/def ::domain string?)
 (s/def ::ingress-name string?)
+(s/def ::app string?)
 (s/def ::user string?)
 (s/def ::repo string?)
 (s/def ::ref string?)
@@ -70,9 +72,12 @@
           slurp
           (yaml/parse-string :keywords true)))
 
+(s/fdef apply-resource
+  :args (s/cat :comp ::deploy-repository-component
+               :k8s map?)
+  :ret map?)
 (defn apply-resource
-  [{:keys [k8s-client] :as comp}
-   {:keys [k8s]}]
+  [{:keys [k8s-client] :as comp} k8s]
   (-> k8s-client
       :client
       (.load (-> k8s
@@ -82,9 +87,13 @@
       (.inNamespace "default")
       .createOrReplace))
 
+(s/fdef delete-resource
+  :args (s/cat :comp ::deploy-repository-component
+               :resource map?)
+  :ret map?)
 (defn delete-resource
   [{:keys [k8s-client] :as comp}
-   {:keys [resource]}]
+   resource]
   (-> k8s-client
       :client
       (.load (-> resource
@@ -93,9 +102,13 @@
                  io/input-stream))
       .delete))
 
+
+(s/fdef delete-deployment
+  :args (s/cat :comp ::deploy-repository-component
+               :app string?)
+  :ret map?)
 (defn delete-deployment
-  [{:keys [k8s-client] :as comp}
-   {:keys [app]}]
+  [{:keys [k8s-client] :as comp} app]
   (-> k8s-client
       :client
       .extensions
@@ -104,9 +117,13 @@
       (.withName app)
       .delete))
 
+
+(s/fdef delete-service
+  :args (s/cat :comp ::deploy-repository-component
+               :app string?)
+  :ret map?)
 (defn delete-service
-  [{:keys [k8s-client] :as comp}
-   {:keys [app]}]
+  [{:keys [k8s-client] :as comp} app]
   (-> k8s-client
       :client
       .services

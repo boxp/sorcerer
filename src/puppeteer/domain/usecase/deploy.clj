@@ -100,8 +100,8 @@
         host (->host {:domain domain
                       :repo-name repo-name
                       :branch-name branch-name})]
-    (deployrepo/apply-resource deploy-repository {:k8s deployment})
-    (deployrepo/apply-resource deploy-repository {:k8s service})
+    (deployrepo/apply-resource deploy-repository deployment)
+    (deployrepo/apply-resource deploy-repository service)
     (deployrepo/apply-ingress deploy-repository ingress)
     (deployrepo/add-subdomain deploy-repository {:host host})
     {:host host}))
@@ -110,8 +110,8 @@
   [{:keys [domain deploy-repository] :as comp}
    {:keys [repo-name branch-name] :as job}]
   (let [app (->app job)]
-    (deployrepo/delete-service deploy-repository {:app app})
-    (deployrepo/delete-deployment deploy-repository {:app app})
+    (deployrepo/delete-service deploy-repository app)
+    (deployrepo/delete-deployment deploy-repository app)
     (deployrepo/remove-subdomain deploy-repository
                                  {:host
                                   (->host {:domain domain
