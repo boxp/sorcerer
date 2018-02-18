@@ -3,9 +3,30 @@
             [clojure.java.io :as io]
             [clj-yaml.core :as yaml]
             [com.stuartsierra.component :as component]
-            [puppeteer.infra.client.github :as github])
-  (:import (com.google.api.services.dns.model Change ResourceRecordSet)))
+            [puppeteer.infra.client.github :as github]
+            [puppeteer.infra.client.k8s :as k8s]
+            [puppeteer.infra.client.cloud-dns :as cloud-dns])
+  (:import (io.fabric8.kubernetes.api.model.extensions Ingress)
+           (com.google.api.services.dns.model Change ResourceRecordSet)))
 
+(s/def ::domain string?)
+(s/def ::ingress-name string?)
+(s/def ::user string?)
+(s/def ::repo string?)
+(s/def ::ref string?)
+(s/def ::path string?)
+(s/def :deploy-repository-component/k8s-client ::k8s/k8s-client-component)
+(s/def :deploy-repository-component/github-client ::github/github-component)
+(s/def :deploy-repository-component/cloud-dns-client ::cloud-dns/cloud-dns-component)
+(s/def ::deploy-repository-component
+  (s/keys :req-un [::domain ::ingress-name]
+          :opt-un [:deploy-repository-component/k8s-client
+                   :deploy-repository-component/github-client
+                   :deploy-repository-component/cloud-dns-client]))
+
+(s/fdef get-ingress
+  :args (s/cat :comp ::deploy-repository-component)
+  :ret Ingress)
 (defn get-ingress
   [{:keys [k8s-client ingress-name] :as comp}]
   (-> k8s-client
@@ -17,6 +38,10 @@
       .getItems
       first))
 
+(s/fdef apply-ingress
+  :args (s/cat :comp ::deploy-repository-component
+               :resource Ingress)
+  :ret true?)
 (defn apply-ingress
   [{:keys [k8s-client ingress-name] :as comp}
    resource]
@@ -26,9 +51,16 @@
       (.inNamespace "default")
       .apply))
 
+(s/fdef get-resource
+  :args (s/cat :comp ::deploy-repository-component
+               :opts (s/keys :req-un [::user
+                                      ::repo
+                                      ::ref
+                                      ::path]))
+  :ret map?)
 (defn get-resource
   [{:keys [github-client] :as comp}
-   {:keys [user repo ref path]}]
+   {:keys [user repo ref path] :as :opts}]
   (some-> (github/get-file
             github-client
             {:user user
