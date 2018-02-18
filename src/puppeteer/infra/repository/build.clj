@@ -1,21 +1,40 @@
 (ns puppeteer.infra.repository.build
-  (:import (com.google.api.services.cloudbuild.v1.model Build Source RepoSource BuildStep Secret Volume))
-  (:require [com.stuartsierra.component :as component]
+  (:import (com.google.api.services.cloudbuild.v1.model Build Source RepoSource BuildStep Secret Volume)
+           (com.google.pubsub.v1 PubsubMessage))
+  (:require [clojure.spec.alpha :as s]
             [clojure.core.async :refer [go put! <! close! chan]]
+            [com.stuartsierra.component :as component]
             [cheshire.core :refer [parse-string]]
             [puppeteer.domain.entity.build :as entity]
             [puppeteer.infra.client.container-builder :as gccb-cli]
             [puppeteer.infra.client.pubsub :as pubsub-cli]))
 
+(s/def ::subscription-name string?)
+(s/def ::subscription-key keyword?)
+(s/def ::message-channel #(instance? (-> (chan) class) %))
+(s/def :build-repository-component/container-builder-client ::gccb-cli/container-builder-client-component)
+(s/def :build-repository-component/pubsub-subscription ::pubsub-cli/pubsub-subscription-component)
+(s/def ::build-repository-component
+  (s/keys :req-un [::subscription-key]
+          :opt-un [:build-repository-component/container-builder-client
+                   :build-repository-component/pubsub-subscription]))
+
 (def default-build-timeout
   "600.0s")
 
+(s/fdef volume->Volume
+  :args (s/cat :volume ::entity/volume)
+  :ret #(instance? Volume %))
 (defn- volume->Volume
   [volume]
   (doto (Volume.)
     (.setName (:name volume))
     (.setPath (:path volume))))
 
+
+(s/fdef build->Build
+  :args (s/cat :build ::entity/build)
+  :ret #(instance? Build %))
 (defn- build->Build
   [build]
   (let [repo-source (doto (RepoSource.)
@@ -47,14 +66,19 @@
       (.setTimeout timeout)
       (.setSecrets secrets))))
 
+(s/fdef BuildMessage->build-message
+  :args (s/cat :m #(instance? PubsubMessage %))
+  :ret ::entity/build-message)
 (defn- BuildMessage->build-message
   [m]
   (some-> m
           .getData
           .toStringUtf8
-          (parse-string true)
-          entity/map->BuildMessage))
+          (parse-string true)))
 
+(s/fdef Operation->BuildId
+  :args (s/cat :operation true?)
+  :ret string?)
 (defn- Operation->BuildId
   [operation]
   (some-> operation
@@ -62,6 +86,10 @@
           (.get "build")
           (.get "id")))
 
+(s/fdef create-build
+  :args (s/cat :comp ::build-repository-component
+               :build ::entity/build)
+  :ret string?)
 (defn create-build
   [{:keys [container-builder-client] :as comp} build]
   (->> build
@@ -71,6 +99,9 @@
 
 (def topic-key :cloud-builds)
 
+(s/fdef get-build-message
+  :args (s/cat :comp ::build-repository-component)
+  :ret ::message-channel)
 (defn get-build-message
   [{:keys [container-builder-client] :as comp}]
   (:channel comp))
@@ -96,6 +127,9 @@
     (-> this
         (dissoc :channel))))
 
+(s/fdef build-repository-component
+  :args (s/cat :subscription-name ::subscription-name)
+  :ret ::build-repository-component)
 (defn build-repository-component
   [subscription-name]
   (map->BuildRepositoryComponent {:subscription-key (keyword subscription-name)}))

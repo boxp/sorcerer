@@ -1,14 +1,24 @@
 (ns puppeteer.infra.client.cloud-dns
-  (:require [com.stuartsierra.component :as component])
+  (:require [com.stuartsierra.component :as component]
+            [clojure.spec.alpha :as s])
   (:import (com.google.cloud ServiceOptions)
            (com.google.api.client.googleapis.auth.oauth2 GoogleCredential)
            (com.google.api.client.googleapis.javanet GoogleNetHttpTransport)
            (com.google.api.client.json.jackson2 JacksonFactory)
-           (com.google.api.services.dns Dns$Builder)))
+           (com.google.api.services.dns Dns Dns$Builder)))
+
+(s/def ::client #(instance? Dns %))
+(s/def ::project-id string?)
+(s/def ::dns-zone string?)
+(s/def ::cloud-dns-component
+  (s/keys :req-un [::client ::project-id ::dns-zone]))
 
 (def application-name
   "puppeteer")
 
+(s/fdef cloud-dns
+  :args (s/cat :dns-zone ::dns-zone)
+  :ret ::client)
 (defn cloud-dns
   [dns-zone]
   (let [http-transport (GoogleNetHttpTransport/newTrustedTransport)
@@ -30,6 +40,9 @@
     (-> this
         (dissoc :client))))
 
+(s/fdef cloud-dns-component
+  :args (s/cat :dns-zone ::dns-zone)
+  :ret ::cloud-dns-component)
 (defn cloud-dns-component
   [dns-zone]
   (map->CloudDnsComponent {:dns-zone dns-zone}))

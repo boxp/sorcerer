@@ -5,10 +5,23 @@
            (com.google.api.client.json.jackson2 JacksonFactory)
            (com.google.api.services.cloudbuild.v1.model ListBuildsResponse Results Build)
            (com.google.api.client.googleapis.auth.oauth2 GoogleCredential))
-  (:require [com.stuartsierra.component :as component]))
+  (:require [com.stuartsierra.component :as component]
+            [clojure.spec.alpha :as s]))
+
+(s/def ::project-id string?)
+(s/def ::client #(instance? CloudBuild %))
+(s/def ::access-token string?)
+(s/def ::container-builder-client-component
+  (s/keys :opt-un [::project-id
+                   ::client
+                   ::access-token]))
 
 (def application-name "puppeteer")
 
+(s/fdef create-build
+  :args (s/cat :comp ::container-builder-client-component
+               :build #(instance? Build %))
+  :ret true?)
 (defn create-build
   [{:keys [project-id client access-token] :as comp} build]
   (-> client
@@ -38,6 +51,9 @@
         (dissoc :client)
         (dissoc :access-token))))
 
+(s/fdef container-builder-client-component
+  :args (s/cat)
+  :ret ::container-builder-client-component)
 (defn container-builder-client-component
   []
   (map->ContainerBuilderClientComponent {}))

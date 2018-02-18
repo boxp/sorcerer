@@ -1,5 +1,6 @@
 (ns puppeteer.infra.repository.deploy
-  (:require [clojure.java.io :as io]
+  (:require [clojure.spec.alpha :as s]
+            [clojure.java.io :as io]
             [clj-yaml.core :as yaml]
             [com.stuartsierra.component :as component]
             [puppeteer.infra.client.github :as github])
