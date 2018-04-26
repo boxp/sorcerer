@@ -22,5 +22,6 @@ steps:
   args:
   - '-c'
   - |
+    gcloud config set container/use_client_certificate True
     gcloud container clusters get-credentials alice --zone asia-northeast1-a
     kubectl apply -f generated-deployment.yml
