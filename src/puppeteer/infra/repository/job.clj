@@ -12,7 +12,7 @@
 
 (defn set-job
   [{:keys [dynamodb-client] :as comp}
-   {:keys [conf message build user-name repo-name branch-name] :as job}]
+   {:keys [conf message build user-name repo-name branch-name subdomain] :as job}]
   (far/update-item (:opts dynamodb-client) :puppeteer-job
                    {:id (-> job :build :id)}
                    {:conf [:put (far/freeze conf)]
@@ -20,7 +20,8 @@
                     :build [:put (far/freeze build)]
                     :user-name [:put user-name]
                     :repo-name [:put repo-name]
-                    :branch-name [:put branch-name]}))
+                    :branch-name [:put branch-name]
+                    :subdomain [:put subdomain]}))
 
 
 (defrecord JobRepositoryComponent [dynamodb-client]
