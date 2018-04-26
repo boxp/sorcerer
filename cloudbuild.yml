@@ -9,6 +9,13 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ["push", "gcr.io/$PROJECT_ID/puppeteer:$REVISION_ID"]
 
+# Apply environment variable
+- name: 'loicmahieu/alpine-envsubst'
+  args:
+  - '-c'
+  - |
+    envsubst < k8s/deployment.yml > generated-deployment.yml
+
 # Deploy
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
@@ -16,5 +23,4 @@ steps:
   - '-c'
   - |
     gcloud container clusters get-credentials boxp-tk --zone asia-northeast1-a
-    envsubst < k8s/deployment.yml > generated-deployment.yml
     kubectl apply -f generated-deployment.yml
