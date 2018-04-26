@@ -1,7 +1,7 @@
 (ns puppeteer.domain.usecase.deploy
   (:import (io.fabric8.kubernetes.api.model IntOrString)
            (io.fabric8.kubernetes.api.model.extensions IngressRule HTTPIngressRuleValue HTTPIngressPath IngressBackend))
-  (:require [puppeteer.util :refer [->app ->host ->service-name]]
+  (:require [puppeteer.util :refer [->app subdomain->host ->host ->service-name]]
             [com.stuartsierra.component :as component]
             [flatland.ordered.map :refer [ordered-map]]
             [puppeteer.infra.repository.deploy :as deployrepo]))
@@ -55,11 +55,9 @@
 
 (defn- prepare-ingress
   [{:keys [deploy-repository domain]}
-   {:keys [conf build user-name repo-name branch-name] :as job}]
-  (let [host (->host {:domain domain
-                      :repo-name repo-name
-                      :branch-name branch-name})
-        service-name (->service-name job)
+   {:keys [conf build user-name repo-name branch-name] :as job}
+   host]
+  (let [service-name (->service-name job)
         ingress (deployrepo/get-ingress deploy-repository)
         spec (.getSpec ingress)
         tls (.getTls spec)
@@ -93,30 +91,34 @@
 
 (defn apply
   [{:keys [domain deploy-repository] :as comp}
-   {:keys [repo-name branch-name] :as job}]
-  (let [deployment (prepare-deployment comp job)
+   {:keys [repo-name branch-name subdomain] :as job}]
+  (let [host (if subdomain
+               (subdomain->host domain subdomain)
+               (->host {:domain domain
+                        :repo-name repo-name
+                        :branch-name branch-name}))
+        deployment (prepare-deployment comp job)
         service (prepare-service comp job)
-        ingress (prepare-ingress comp job)
-        host (->host {:domain domain
-                      :repo-name repo-name
-                      :branch-name branch-name})]
+        ingress (prepare-ingress comp job)]
     (deployrepo/apply-resource deploy-repository deployment)
     (deployrepo/apply-resource deploy-repository service)
-    (deployrepo/apply-ingress deploy-repository ingress)
+    (deployrepo/apply-ingress deploy-repository ingress host)
     (deployrepo/add-subdomain deploy-repository host)
     {:host host}))
 
 (defn round-up
   [{:keys [domain deploy-repository] :as comp}
-   {:keys [repo-name branch-name] :as job}]
+   {:keys [repo-name branch-name subdomain] :as job}]
   (let [app (->app job)]
     (deployrepo/delete-service deploy-repository app)
     (deployrepo/delete-deployment deploy-repository app)
     (deployrepo/remove-subdomain deploy-repository
                                  {:host
-                                  (->host {:domain domain
-                                           :repo-name repo-name
-                                           :branch-name branch-name})})))
+                                  (if subdomain
+                                    (subdomain->host domain subdomain)
+                                    (->host {:domain domain
+                                             :repo-name repo-name
+                                             :branch-name branch-name}))})))
 
 (defrecord DeployUsecaseComponent [deploy-repository domain]
   component/Lifecycle

@@ -8,12 +8,14 @@
 (s/def :job/conf ::conf/configuration)
 (s/def :job/build ::build/build)
 (s/def :job/message ::message/message)
+(s/def :job/subdomain (s/nilable string?))
 (s/def ::job
   (s/keys :req-un [:job/conf
                    :job/build
                    :job/message
                    :job/user-name
                    ::build/repo-name
-                   ::build/branch-name]))
+                   ::build/branch-name
+                   :job/subdomain]))
 
-(defrecord Job [conf build message user-name repo-name branch-name])
+(defrecord Job [conf build message user-name repo-name branch-name subdomain])
