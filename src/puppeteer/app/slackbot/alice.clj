@@ -20,12 +20,12 @@
 (defn- deploy
   [{:keys [message-usecase build-usecase conf-usecase job-usecase]}
    m
-   [_ _ user-name repo-name branch-name reserved-subdomain]]
+   [_ _ user-name repo-name branch-name subdomain]]
   (try
     (as-> (map->Job {:user-name user-name
                      :repo-name repo-name
                      :branch-name branch-name
-                     :reserved-subdomain reserved-subdomain
+                     :subdomain subdomain
                      :message m}) $
       (assoc $ :conf (load-conf conf-usecase $))
       (assoc-in $ [:build :id] (build build-usecase $))
@@ -44,12 +44,12 @@
 (defn- roundup
   [{:keys [message-usecase deploy-usecase]}
    m
-   [_ _ user-name repo-name branch-name reserved-subdomain]]
+   [_ _ user-name repo-name branch-name subdomain]]
   (try
     (as-> (map->Job {:user-name user-name
                     :repo-name repo-name
                     :branch-name branch-name
-                    :reserved-subdomain reserved-subdomain
+                    :subdomain subdomain
                     :message m}) $
       (do (deploy-usecase/round-up deploy-usecase $) $)
       (do (message-usecase/send-round-up-succeed-message message-usecase $) $))

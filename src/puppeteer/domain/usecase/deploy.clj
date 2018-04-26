@@ -91,9 +91,9 @@
 
 (defn apply
   [{:keys [domain deploy-repository] :as comp}
-   {:keys [repo-name branch-name reserved-subdomain] :as job}]
-  (let [host (if reserved-subdomain
-               (subdomain->host domain reserved-subdomain)
+   {:keys [repo-name branch-name subdomain] :as job}]
+  (let [host (if subdomain
+               (subdomain->host domain subdomain)
                (->host {:domain domain
                         :repo-name repo-name
                         :branch-name branch-name}))
@@ -108,14 +108,14 @@
 
 (defn round-up
   [{:keys [domain deploy-repository] :as comp}
-   {:keys [repo-name branch-name reserved-subdomain] :as job}]
+   {:keys [repo-name branch-name subdomain] :as job}]
   (let [app (->app job)]
     (deployrepo/delete-service deploy-repository app)
     (deployrepo/delete-deployment deploy-repository app)
     (deployrepo/remove-subdomain deploy-repository
                                  {:host
-                                  (if reserved-subdomain
-                                    (subdomain->host domain reserved-subdomain)
+                                  (if subdomain
+                                    (subdomain->host domain subdomain)
                                     (->host {:domain domain
                                              :repo-name repo-name
                                              :branch-name branch-name}))})))

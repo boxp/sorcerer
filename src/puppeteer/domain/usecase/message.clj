@@ -11,8 +11,8 @@
         :user-id (:user-id message)
         :text ":dolls:"
         :attachments [(map->Attachment
-                        {:text (str ":rocket: Deploy: @alc deploy <user-name> <repository-name> <branch-name> <?reserved-subdomain>" "\n"
-                                    ":wastebasket: RoundUp: @alc roundup <user-name> <repository-name> <branch-name> <?reserved-subdomain>")})]}
+                        {:text (str ":rocket: Deploy: @alc deploy <user-name> <repository-name> <branch-name> <?subdomain>" "\n"
+                                    ":wastebasket: RoundUp: @alc roundup <user-name> <repository-name> <branch-name> <?subdomain>")})]}
        map->Message
        (r/send-message message-repository)))
 
