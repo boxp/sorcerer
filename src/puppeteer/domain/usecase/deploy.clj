@@ -99,7 +99,7 @@
                         :branch-name branch-name}))
         deployment (prepare-deployment comp job)
         service (prepare-service comp job)
-        ingress (prepare-ingress comp job)]
+        ingress (prepare-ingress comp job host)]
     (deployrepo/apply-resource deploy-repository deployment)
     (deployrepo/apply-resource deploy-repository service)
     (deployrepo/apply-ingress deploy-repository ingress host)
