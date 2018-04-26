@@ -103,7 +103,7 @@
     (deployrepo/apply-resource deploy-repository deployment)
     (deployrepo/apply-resource deploy-repository service)
     (deployrepo/apply-ingress deploy-repository ingress)
-    (deployrepo/add-subdomain deploy-repository {:host host})
+    (deployrepo/add-subdomain deploy-repository host)
     {:host host}))
 
 (defn round-up

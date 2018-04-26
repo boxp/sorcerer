@@ -28,7 +28,7 @@
 
 (s/fdef get-ingress
   :args (s/cat :comp ::deploy-repository-component)
-  :ret Ingress)
+  :ret #(instance? Ingress %))
 (defn get-ingress
   [{:keys [k8s-client ingress-name] :as comp}]
   (-> k8s-client
@@ -42,7 +42,7 @@
 
 (s/fdef apply-ingress
   :args (s/cat :comp ::deploy-repository-component
-               :resource Ingress)
+               :resource #(instance? Ingress %))
   :ret true?)
 (defn apply-ingress
   [{:keys [k8s-client ingress-name] :as comp}
@@ -131,9 +131,12 @@
       (.withName app)
       .delete))
 
+(s/fdef add-subdomain
+  :args (s/cat :comp ::deploy-repository-component
+               :host string?)
+  :ret map?)
 (defn add-subdomain
-  [{:keys [cloud-dns-client domain] :as comp}
-   {:keys [host]}]
+  [{:keys [cloud-dns-client domain] :as comp} host]
   (try
     (let [resource-record-set (-> (ResourceRecordSet.)
                                   (.setKind "dns#resourceRecordSet")
@@ -153,9 +156,12 @@
         409 nil
         (throw e)))))
 
+(s/fdef remove-subdomain
+  :args (s/cat :comp ::deploy-repository-component
+               :host string?)
+  :ret map?)
 (defn remove-subdomain
-  [{:keys [cloud-dns-client domain] :as comp}
-   {:keys [host]}]
+  [{:keys [cloud-dns-client domain] :as comp} host]
   (let [resource-record-set (-> (ResourceRecordSet.)
                                 (.setKind "dns#resourceRecordSet")
                                 (.setType "CNAME")
@@ -179,6 +185,10 @@
     (println ";; Stopping DeployRepositoryComponent")
     this))
 
+(s/fdef deploy-repository-component
+  :args (s/cat :domain string?
+               :ingress-name string?)
+  :ret ::deploy-repository-component)
 (defn deploy-repository-component
   [domain ingress-name]
   (map->DeployRepositoryComponent {:domain domain
