@@ -102,7 +102,7 @@
         ingress (prepare-ingress comp job host)]
     (deployrepo/apply-resource deploy-repository deployment)
     (deployrepo/apply-resource deploy-repository service)
-    (deployrepo/apply-ingress deploy-repository ingress host)
+    (deployrepo/apply-ingress deploy-repository ingress)
     (deployrepo/add-subdomain deploy-repository host)
     {:host host}))
 
