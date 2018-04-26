@@ -1,10 +1,34 @@
 (ns puppeteer.infra.repository.deploy
-  (:require [clojure.java.io :as io]
+  (:require [clojure.spec.alpha :as s]
+            [clojure.java.io :as io]
             [clj-yaml.core :as yaml]
             [com.stuartsierra.component :as component]
-            [puppeteer.infra.client.github :as github])
-  (:import (com.google.api.services.dns.model Change ResourceRecordSet)))
+            [puppeteer.infra.client.github :as github]
+            [puppeteer.infra.client.k8s :as k8s]
+            [puppeteer.infra.client.cloud-dns :as cloud-dns]
+            [puppeteer.domain.entity.conf :as conf-entity])
+  (:import (io.fabric8.kubernetes.api.model.extensions Ingress)
+           (com.google.api.services.dns.model Change ResourceRecordSet)))
 
+(s/def ::domain string?)
+(s/def ::ingress-name string?)
+(s/def ::app string?)
+(s/def ::user string?)
+(s/def ::repo string?)
+(s/def ::ref string?)
+(s/def ::path string?)
+(s/def :deploy-repository-component/k8s-client ::k8s/k8s-client-component)
+(s/def :deploy-repository-component/github-client ::github/github-component)
+(s/def :deploy-repository-component/cloud-dns-client ::cloud-dns/cloud-dns-component)
+(s/def ::deploy-repository-component
+  (s/keys :req-un [::domain ::ingress-name]
+          :opt-un [:deploy-repository-component/k8s-client
+                   :deploy-repository-component/github-client
+                   :deploy-repository-component/cloud-dns-client]))
+
+(s/fdef get-ingress
+  :args (s/cat :comp ::deploy-repository-component)
+  :ret #(instance? Ingress %))
 (defn get-ingress
   [{:keys [k8s-client ingress-name] :as comp}]
   (-> k8s-client
@@ -16,6 +40,10 @@
       .getItems
       first))
 
+(s/fdef apply-ingress
+  :args (s/cat :comp ::deploy-repository-component
+               :resource #(instance? Ingress %))
+  :ret true?)
 (defn apply-ingress
   [{:keys [k8s-client ingress-name] :as comp}
    resource]
@@ -25,9 +53,16 @@
       (.inNamespace "default")
       .apply))
 
+(s/fdef get-resource
+  :args (s/cat :comp ::deploy-repository-component
+               :opts (s/keys :req-un [::user
+                                      ::repo
+                                      ::ref
+                                      ::path]))
+  :ret map?)
 (defn get-resource
   [{:keys [github-client] :as comp}
-   {:keys [user repo ref path]}]
+   {:keys [user repo ref path] :as opts}]
   (some-> (github/get-file
             github-client
             {:user user
@@ -37,9 +72,12 @@
           slurp
           (yaml/parse-string :keywords true)))
 
+(s/fdef apply-resource
+  :args (s/cat :comp ::deploy-repository-component
+               :k8s map?)
+  :ret map?)
 (defn apply-resource
-  [{:keys [k8s-client] :as comp}
-   {:keys [k8s]}]
+  [{:keys [k8s-client] :as comp} k8s]
   (-> k8s-client
       :client
       (.load (-> k8s
@@ -49,8 +87,13 @@
       (.inNamespace "default")
       .createOrReplace))
 
-(defn delete-resource [{:keys [k8s-client] :as comp}
-   {:keys [resource]}]
+(s/fdef delete-resource
+  :args (s/cat :comp ::deploy-repository-component
+               :resource map?)
+  :ret map?)
+(defn delete-resource
+  [{:keys [k8s-client] :as comp}
+   resource]
   (-> k8s-client
       :client
       (.load (-> resource
@@ -59,9 +102,13 @@
                  io/input-stream))
       .delete))
 
+
+(s/fdef delete-deployment
+  :args (s/cat :comp ::deploy-repository-component
+               :app string?)
+  :ret map?)
 (defn delete-deployment
-  [{:keys [k8s-client] :as comp}
-   {:keys [app]}]
+  [{:keys [k8s-client] :as comp} app]
   (-> k8s-client
       :client
       .extensions
@@ -70,9 +117,13 @@
       (.withName app)
       .delete))
 
+
+(s/fdef delete-service
+  :args (s/cat :comp ::deploy-repository-component
+               :app string?)
+  :ret map?)
 (defn delete-service
-  [{:keys [k8s-client] :as comp}
-   {:keys [app]}]
+  [{:keys [k8s-client] :as comp} app]
   (-> k8s-client
       :client
       .services
@@ -80,9 +131,12 @@
       (.withName app)
       .delete))
 
+(s/fdef add-subdomain
+  :args (s/cat :comp ::deploy-repository-component
+               :host string?)
+  :ret map?)
 (defn add-subdomain
-  [{:keys [cloud-dns-client domain] :as comp}
-   {:keys [host]}]
+  [{:keys [cloud-dns-client domain] :as comp} host]
   (try
     (let [resource-record-set (-> (ResourceRecordSet.)
                                   (.setKind "dns#resourceRecordSet")
@@ -102,9 +156,12 @@
         409 nil
         (throw e)))))
 
+(s/fdef remove-subdomain
+  :args (s/cat :comp ::deploy-repository-component
+               :host string?)
+  :ret map?)
 (defn remove-subdomain
-  [{:keys [cloud-dns-client domain] :as comp}
-   {:keys [host]}]
+  [{:keys [cloud-dns-client domain] :as comp} host]
   (let [resource-record-set (-> (ResourceRecordSet.)
                                 (.setKind "dns#resourceRecordSet")
                                 (.setType "CNAME")
@@ -128,6 +185,10 @@
     (println ";; Stopping DeployRepositoryComponent")
     this))
 
+(s/fdef deploy-repository-component
+  :args (s/cat :domain string?
+               :ingress-name string?)
+  :ret ::deploy-repository-component)
 (defn deploy-repository-component
   [domain ingress-name]
   (map->DeployRepositoryComponent {:domain domain

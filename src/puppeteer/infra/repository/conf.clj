@@ -1,20 +1,35 @@
 (ns puppeteer.infra.repository.conf
-  (:require [com.stuartsierra.component :as component]
+  (:require [clojure.spec.alpha :as s]
+            [com.stuartsierra.component :as component]
             [puppeteer.infra.client.github :as github]
-            [puppeteer.domain.entity.conf :refer [map->Configuration]]))
+            [puppeteer.domain.entity.conf :as conf-entity]
+            [puppeteer.domain.entity.build :as build-entity]))
 
+(s/def ::content #(instance? (-> "" .getBytes class) %))
+(s/def :configuration-repository-component/github-client ::github/github-component)
+(s/def ::configuration-repository-component
+  (s/keys :opt-un [:configuration-repository-component/github-client]))
+
+(s/fdef Content->Configuration
+  :args (s/cat :content ::content)
+  :ret ::conf-entity/configuration)
 (defn- Content->Configuration
   [content]
   (some->> content
            slurp
-           read-string
-           map->Configuration))
+           read-string))
 
 (def conf-path "puppet.edn")
 
+(s/fdef load-conf
+  :args (s/cat :c ::configuration-repository-component
+               :opts (s/keys :req-un [::build-entity/user-name
+                                      ::build-entity/repo-name
+                                      ::build-entity/branch-name]))
+  :ret (s/nilable ::conf-entity/configuration))
 (defn load-conf
-  [{:keys [github-client]}
-   {:keys [user-name repo-name branch-name]}]
+  [{:keys [github-client] :as c}
+   {:keys [user-name repo-name branch-name] :as configuration}]
   (some->>
     (github/get-file github-client
                      {:user user-name
@@ -32,6 +47,9 @@
     (println ";; Stopping ConfigurationRepositoryComponent")
     this))
 
+(s/fdef configuration-repository-component
+  :args (s/cat)
+  :ret ::configuration-repository-component)
 (defn configuration-repository-component
   []
   (map->ConfigurationRepositoryComponent {}))
