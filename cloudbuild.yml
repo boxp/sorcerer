@@ -11,17 +11,23 @@ steps:
 
 # Apply environment variable
 - name: 'loicmahieu/alpine-envsubst'
+  volumes:
+  - name: 'generated'
+  - path: '/generated'
   args:
   - '-c'
   - |
-    envsubst < k8s/deployment.yml > generated-deployment.yml
+    envsubst < k8s/deployment.yml > /generated/deployment.yml
 
 # Deploy
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
+  volumes:
+  - name: 'generated'
+  - path: '/generated'
   args:
   - '-c'
   - |
     gcloud config set container/use_client_certificate True
     gcloud container clusters get-credentials alice --zone asia-northeast1-a
-    kubectl apply -f generated-deployment.yml
+    kubectl apply -f /generated/deployment.yml
