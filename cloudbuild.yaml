@@ -11,7 +11,7 @@ steps:
 
 # Apply environment variable
 - name: 'loicmahieu/alpine-envsubst'
-  entrypoint: 'bash'
+  entrypoint: 'sh'
   args:
   - '-c'
   - |
