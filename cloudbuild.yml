@@ -13,7 +13,7 @@ steps:
 - name: 'loicmahieu/alpine-envsubst'
   volumes:
   - name: 'generated'
-  - path: '/generated'
+    path: '/generated'
   args:
   - '-c'
   - |
@@ -24,7 +24,7 @@ steps:
   entrypoint: 'bash'
   volumes:
   - name: 'generated'
-  - path: '/generated'
+    path: '/generated'
   args:
   - '-c'
   - |
