@@ -12,6 +12,7 @@ steps:
 # Apply environment variable
 - name: 'loicmahieu/alpine-envsubst'
   entrypoint: 'sh'
+  env: ["REVISION_ID=$REVISION_ID"]
   args:
   - '-c'
   - |
