@@ -13,7 +13,6 @@ A Slackbot for Deploying microservices to GKE Cluster.
 - Google Cloud SDK(https://cloud.google.com/sdk/)
 - Your GCP Account
 - Your AWS Account
-- Your CircleCI Account
 
 ## Usage(Local Environment)
 
@@ -38,9 +37,12 @@ A Slackbot for Deploying microservices to GKE Cluster.
 
 ## Deploy to your GKE cluster
 
-1. Add Integration with CircleCI to your GitHub repository.
-2. Add your Google Application Credentials as `$ACCT_AUTH`.
-3. Create Kubernetes/Secret to your Cluster(Examples below).
+1. Add Integration with [Google Cloud Container Builder](https://cloud.google.com/container-builder/docs/running-builds/automate-builds) to your GitHub repository.
+2. Add Kubernetes Engine IAM role.(quoted from [Official Document](https://cloud.google.com/container-builder/docs/configuring-builds/build-test-deploy-artifacts#deploying_artifacts))
+	a. visit [IAM menu](https://console.cloud.google.com/iam-admin/iam/project?_ga=2.85671577.-1255311422.1517556095).
+	b. From the list of service accounts, click the Roles drop-down menu beside the Container Builder [YOUR-PROJECT-ID]@cloudbuild.gserviceaccount.com service account.
+	c. Click *Kubernetes Engine*, then click *Kubernetes Engine Admin*.
+	d. Click Save.
 
 ```yml
 apiVersion: v1
