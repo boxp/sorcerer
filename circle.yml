@@ -5,6 +5,7 @@
       CLOUDSDK_COMPUTE_ZONE: asia-northeast1-a
       DEBIAN_FRONTEND: noninteractive
       GOOGLE_APPLICATION_CREDENTIALS: ${HOME}/account-auth.json
+      REVISION_ID: ${CIRCLE_SHA1}
     services:
       - docker
 
@@ -23,9 +24,9 @@
 
   test:
     override:
-      - docker build -t asia.gcr.io/${PROJECT_NAME}/puppeteer:$CIRCLE_SHA1 .
+      - docker build -t gcr.io/${PROJECT_NAME}/puppeteer:$CIRCLE_SHA1 .
         # Using a separate tag command until Docker 1.10 is available on CircleCI, then we can use two tags in the build command above
-      - docker tag asia.gcr.io/${PROJECT_NAME}/puppeteer:$CIRCLE_SHA1 asia.gcr.io/${PROJECT_NAME}/puppeteer:latest
+      - docker tag gcr.io/${PROJECT_NAME}/puppeteer:$CIRCLE_SHA1 gcr.io/${PROJECT_NAME}/puppeteer:latest
 
   deployment:
     prod:

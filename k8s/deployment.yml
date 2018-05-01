@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: puppeteer
-        image: asia.gcr.io/boxp-tk/puppeteer:${CIRCLE_SHA1}
+        image: gcr.io/boxp-tk/puppeteer:${REVISION_ID}
         env:
           - name: PUPPETEER_SLACK_TOKEN
             valueFrom:
