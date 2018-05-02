@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: puppeteer
-        image: gcr.io/boxp-tk/puppeteer:${REVISION_ID}
+        image: gcr.io/${PROJECT_ID}/puppeteer:${REVISION_ID}
         env:
           - name: PUPPETEER_SLACK_TOKEN
             valueFrom:

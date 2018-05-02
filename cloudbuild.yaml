@@ -12,7 +12,9 @@ steps:
 # Apply environment variable
 - name: 'loicmahieu/alpine-envsubst'
   entrypoint: 'sh'
-  env: ["REVISION_ID=$REVISION_ID"]
+  env:
+  - "REVISION_ID=$REVISION_ID"
+  - "PROJECT_ID=$PROJECT_ID"
   args:
   - '-c'
   - |
