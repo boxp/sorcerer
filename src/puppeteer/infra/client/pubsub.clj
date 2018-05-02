@@ -11,8 +11,7 @@
                                            Subscriber
                                            MessageReceiver)
            (com.google.pubsub.v1 Topic
-                                 TopicName
-                                 SubscriptionName
+                                 ProjectTopicName
                                  PubsubMessage
                                  PushConfig))
   (:require [clojure.spec.alpha :as s]
@@ -29,17 +28,13 @@
 (s/fdef create-topic
   :args (s/cat :comp ::pubsub-subscription-component
                :topic-key ::topic-key)
-  :ret #(instance? TopicName %))
+  :ret true?)
 (defn create-topic
   [comp topic-key]
   (let [topic-admin-cli (TopicAdminClient/create)]
-    (try
-        (->> (TopicName/create (:project-id comp)
-                               (name topic-key))
-             (.createTopic topic-admin-cli))
-        (catch Exception e
-          (TopicName/create (:project-id comp)
-            (name topic-key))))))
+    (->> (ProjectTopicName/of (:project-id comp)
+                              (name topic-key))
+         (.createTopic topic-admin-cli))))
 
 (s/fdef create-subscription
   :args (s/cat :comp ::pubsub-subscription-component

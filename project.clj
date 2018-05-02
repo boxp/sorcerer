@@ -18,16 +18,13 @@
                   :exclusions [[com.amazonaws/aws-java-sdk-dynamodb]]]
                  [io.fabric8/kubernetes-client "2.5.6"]
                  [io.fabric8/kubernetes-model "1.1.0"]
-                 [com.google.guava/guava "22.0"]
                  [com.google.auth/google-auth-library-oauth2-http "0.6.1"]
                  [com.google.auth/google-auth-library-credentials "0.6.1"]
-                 [com.google.cloud/google-cloud-pubsub "0.20.1-beta"
-                  :exclusions [com.google.auth/google-auth-library-oauth2-http
-                               com.google.auth/google-auth-library-credentials
-                               com.google.guava/guava]]
+                 [com.google.cloud/google-cloud-pubsub "0.46.0-beta"]
                  [com.google.apis/google-api-services-cloudbuild "v1-rev609-1.22.0"
                   :exclusions [com.google.guava/guava
                                com.google.guava/guava-jdk5]]
+                 [com.google.cloud/google-cloud-datastore "1.28.0"]
                  [com.google.apis/google-api-services-dns "v1-rev44-1.22.0"]]
   :profiles
   {:dev {:source-paths ["src" "dev"]}

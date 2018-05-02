@@ -9,6 +9,7 @@
             [puppeteer.infra.client.github :refer [github-component]]
             [puppeteer.infra.client.dynamodb :refer [dynamodb-component]]
             [puppeteer.infra.client.cloud-dns :refer [cloud-dns-component]]
+            [puppeteer.infra.client.cloud-datastore :refer [map->CloudDatastoreComponent]]
             [puppeteer.infra.repository.build :refer [build-repository-component]]
             [puppeteer.infra.repository.deploy :refer [deploy-repository-component]]
             [puppeteer.infra.repository.message :refer [message-repository-component]]
@@ -43,6 +44,7 @@
     :github-client (github-component puppeteer-github-oauth-token)
     :dynamodb-client (dynamodb-component puppeteer-aws-access-key puppeteer-aws-secret-key puppeteer-dynamodb-endpoint)
     :cloud-dns-client (cloud-dns-component puppeteer-dns-zone)
+    :cloud-datastore-client (map->CloudDatastoreComponent {})
     :build-repository (component/using
                         (build-repository-component puppeteer-pubsub-subscription-name)
                         [:container-builder-client
