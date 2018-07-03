@@ -30,7 +30,7 @@
                         (re-pattern
                           (str "\\<\\@"
                                (-> rtm-connection :start :self :id)
-                               "\\> .*")))))))
+                               "\\>.*")))))))
 
 
 (s/fdef wrap-from-me?

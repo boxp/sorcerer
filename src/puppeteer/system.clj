@@ -14,11 +14,13 @@
             [puppeteer.infra.repository.message :refer [message-repository-component]]
             [puppeteer.infra.repository.conf :refer [configuration-repository-component]]
             [puppeteer.infra.repository.job :refer [job-repository-component]]
+            [puppeteer.infra.repository.search :refer [map->SearchRepositoryComponent]]
             [puppeteer.domain.usecase.build :refer [build-usecase-component]]
             [puppeteer.domain.usecase.message :refer [message-usecase-component]]
             [puppeteer.domain.usecase.conf :refer [configuration-usecase-component]]
             [puppeteer.domain.usecase.job :refer [job-usecase-component]]
             [puppeteer.domain.usecase.deploy :refer [deploy-usecase-component]]
+            [puppeteer.domain.usecase.search :refer [map->SearchUsecaseComponent]]
             [puppeteer.app.slackbot.alice :refer [alice-component]])
   (:gen-class))
 
@@ -62,6 +64,9 @@
     :job-repository (component/using
                       (job-repository-component)
                       [:dynamodb-client])
+    :search-repository (component/using
+                         (map->SearchRepositoryComponent {})
+                         [:k8s-client])
     :build-usecase (component/using
                      (build-usecase-component)
                      [:build-repository])
@@ -77,13 +82,17 @@
     :deploy-usecase (component/using
                       (deploy-usecase-component puppeteer-k8s-domain)
                       [:deploy-repository])
+    :search-usecase (component/using
+                      (map->SearchUsecaseComponent {})
+                      [:search-repository])
     :alice (component/using
              (alice-component)
              [:message-usecase
               :build-usecase
               :conf-usecase
               :job-usecase
-              :deploy-usecase])))
+              :deploy-usecase
+              :search-usecase])))
 
 (defn load-config []
   {:puppeteer-k8s-endpoint (env :puppeteer-k8s-endpoint)

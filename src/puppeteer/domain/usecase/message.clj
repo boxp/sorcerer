@@ -1,7 +1,9 @@
 (ns puppeteer.domain.usecase.message
   (:require [com.stuartsierra.component :as component]
+            [clojure.spec.alpha :as s]
             [puppeteer.util :refer [->host]]
             [puppeteer.domain.entity.message :refer [map->Message map->Attachment map->Field]]
+            [puppeteer.domain.entity.search :as search]
             [puppeteer.infra.repository.message :as r]))
 
 (defn send-help-message
@@ -11,7 +13,9 @@
         :user-id (:user-id message)
         :text ":dolls:"
         :attachments [(map->Attachment
-                        {:text (str ":rocket: Deploy: @alc deploy <user-name> <repository-name> <branch-name> <?subdomain>" "\n"
+                        {:text (str ":question: Help: @alc help" "\n"
+                                    ":mag: Search: @alc <query...>" "\n"
+                                    ":rocket: Deploy: @alc deploy <user-name> <repository-name> <branch-name> <?subdomain>" "\n"
                                     ":wastebasket: RoundUp: @alc roundup <user-name> <repository-name> <branch-name> <?subdomain>")})]}
        map->Message
        (r/send-message message-repository)))
@@ -114,6 +118,32 @@
 			 :color "danger"})]}
        map->Message
        (r/send-message message-repository)))
+
+(s/fdef search-result-attachment
+  :args (s/cat :result :search/deployment))
+(defn search-result-attachment
+  [result]
+  {:color (cond (= 0 (-> result :status :availableReplicas)) "danger"
+                (= (-> result :status :replicas) (-> result :status :readyReplicas)) "good"
+                :else "warning")
+   :text (str ":ship: " (-> result :metadata :namespace) "/" (-> result :metadata :name) " "
+              "replicas:" (-> result :status :replicas) " "
+              "available-replicas:" (-> result :status :availableReplicas) " "
+              "ready-replicas:" (-> result :status :readyReplicas) " ")})
+
+(s/fdef send-search-results-message
+  :args (s/cat :opts
+          (s/cat :results (s/coll-of :search/deployment))))
+(defn send-search-results-message
+  [{:keys [message-repository]}
+   {:keys [message query results] :as opts}]
+  (->> {:channel-id (:channel-id message)
+        :user-id (:user-id message)
+        :text (str "Search Results for \"" query "\"")
+        :attachments (map #(search-result-attachment %) results)}
+       map->Message
+       (r/send-message message-repository)))
+
 
 (defn update-message
   [{:keys [message-repository]}

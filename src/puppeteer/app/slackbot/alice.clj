@@ -7,7 +7,8 @@
             [puppeteer.domain.usecase.build :refer [build subscribe-build-message]]
             [puppeteer.domain.usecase.conf :refer [load-conf]]
             [puppeteer.domain.usecase.job :refer [get-job set-job]]
-            [puppeteer.domain.usecase.deploy :as deploy-usecase]))
+            [puppeteer.domain.usecase.deploy :as deploy-usecase]
+            [puppeteer.domain.usecase.search :as search-usecase]))
 
 (defn- help
   [{:keys [message-usecase build-usecase]}
@@ -97,6 +98,14 @@
          :branch-name (:branch-name job)
          :error-message (:logUrl m)}))))
 
+(defn- search
+  [{:keys [message-usecase search-usecase]} m args]
+  (let [query (->> args (drop 1) (clojure.string/join " "))]
+    (as-> (search-usecase/search search-usecase query) $
+      (message-usecase/send-search-results-message message-usecase {:message m
+                                                                    :query query
+                                                                    :results $}))))
+
 (defmulti reaction
   (fn [_ m] (:type m)))
 
@@ -109,7 +118,8 @@
       (case command
         "deploy" (async/go (deploy comp m args))
         "roundup" (async/go (roundup comp m args))
-        (help comp m args)))))
+        "help" (async/go (help comp m args))
+        (async/go (search comp m args))))))
 
 (defmethod reaction :build
   [{:keys [message-usecase build-usecase] :as comp}
@@ -134,7 +144,7 @@
                            build-chan
                            ([v _] (some-> v (assoc :type :build)))))))))
 
-(defrecord AliceComponent [message-usecase build-usecase conf-usecase job-usecase deploy-usecase]
+(defrecord AliceComponent [message-usecase build-usecase conf-usecase job-usecase deploy-usecase search-usecase]
   component/Lifecycle
   (start [{:keys [message-usecase build-usecase] :as this}]
     (println ";; Starting AliceComponent")
