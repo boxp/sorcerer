@@ -1,4 +1,4 @@
-(defproject puppeteer "0.1.0-SNAPSHOT"
+(defproject sorcerer "0.1.0-SNAPSHOT"
   :description "A Slackbot for Deploying microservices to GKE Cluster"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -31,4 +31,4 @@
                  [com.google.apis/google-api-services-dns "v1-rev44-1.22.0"]]
   :profiles
   {:dev {:source-paths ["src" "dev"]}
-   :uberjar {:main puppeteer.system}})
+   :uberjar {:main sorcerer.system}})
