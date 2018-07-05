@@ -1,14 +1,14 @@
 (ns user
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.namespace.repl :refer (refresh)]
-            [puppeteer.system :refer [puppeteer-system
+            [sorcerer.system :refer [sorcerer-system
                                      load-config]]))
 
 (def system nil)
 
 (defn init []
   (alter-var-root #'system
-                  (constantly (puppeteer-system (load-config)))))
+                  (constantly (sorcerer-system (load-config)))))
 
 (defn start []
   (alter-var-root #'system component/start))

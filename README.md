@@ -1,6 +1,6 @@
-![puppeteer-flow](puppeteer-flow.png)
+![sorcerer-flow](sorcerer-flow.png)
 
-# puppeteer
+# Sorcerer
 
 A Slackbot for Deploying microservices to GKE Cluster.
 
@@ -19,17 +19,17 @@ A Slackbot for Deploying microservices to GKE Cluster.
 1. Add `.lein-env` to root folder(Examples below).
 
 ```clj
-{:puppeteer-slack-token "[SLACK_TOKEN]"
- :puppeteer-github-oauth-token "[GITHUB_OAUTH_TOKEN]"
- :puppeteer-aws-access-key "[AWS_ACCESS_KEY]"
- :puppeteer-aws-secret-key "[AWS_SECRET_KEY]"
- :puppeteer-dynamodb-endpoint "http://localhost:8000"
- :puppeteer-pubsub-subscription-name "puppeteer-cloud-builds-dev"
- :puppeteer-k8s-endpoint "http://localhost:8001"
- :puppeteer-k8s-ingress-name "[YOUR_K8S_INGRESS_NAME]"
- :puppeteer-k8s-namespace "[YOUR_K8S_NAMESPACE]"
- :puppeteer-k8s-domain "[YOUR_DOMAIN_NAME]"
- :puppeteer-dns-zone "[YOUR_CLOUD_DNS_ZONE]"}
+{:sorcerer-slack-token "[SLACK_TOKEN]"
+ :sorcerer-github-oauth-token "[GITHUB_OAUTH_TOKEN]"
+ :sorcerer-aws-access-key "[AWS_ACCESS_KEY]"
+ :sorcerer-aws-secret-key "[AWS_SECRET_KEY]"
+ :sorcerer-dynamodb-endpoint "http://localhost:8000"
+ :sorcerer-pubsub-subscription-name "sorcerer-cloud-builds-dev"
+ :sorcerer-k8s-endpoint "http://localhost:8001"
+ :sorcerer-k8s-ingress-name "[YOUR_K8S_INGRESS_NAME]"
+ :sorcerer-k8s-namespace "[YOUR_K8S_NAMESPACE]"
+ :sorcerer-k8s-domain "[YOUR_DOMAIN_NAME]"
+ :sorcerer-dns-zone "[YOUR_CLOUD_DNS_ZONE]"}
 ```
 
 2. `lein repl`
@@ -48,7 +48,7 @@ A Slackbot for Deploying microservices to GKE Cluster.
 apiVersion: v1
 kind: Secret
 metadata:
-  name: puppeteer
+  name: sorcerer
 type: Opaque
 data:
   slack-token: <echo -n "[SLACK_TOKEN]" | base64> # for slack
@@ -56,7 +56,7 @@ data:
   aws-access-key: <echo -n "[AWS_ACCESS_KEY]" | base64> # for dynamodb
   aws-secret-key: <echo -n "[AWS_SECRET_KEY]" | base64> # for dynamodb
   dynamodb-endpoint: <echo -n "http://localhost:8001" | base64> # for dynamodb
-  pubsub-subscription-name: <echo -n "puppeteer-cloud-builds" | base64> # for cloud pubsub
+  pubsub-subscription-name: <echo -n "sorcerer-cloud-builds" | base64> # for cloud pubsub
   k8s-domain: <echo -n "[YOUR_DOMAIN_NAME]" | base64>
   k8s-ingress-name: <echo -n "[YOUR_K8S_INGRESS_NAME]" | base64>
   dns-zone: <echo -n "[YOUR_CLOUD_DNS_ZONE]" | base64> # for cloud dns
@@ -78,11 +78,11 @@ data:
        :service "k8s/service.yml"}}
 ```
 
-3. Send mention to puppeteer `@<your-bot-name> deploy <repository-user-name> <repository-name> <branch-name>`
+3. Send mention to sorcerer `@<your-bot-name> deploy <repository-user-name> <repository-name> <branch-name>`
 
 ## License
 
-Copyright © 2017 boxp
+Copyright © 2018 boxp
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.

@@ -1,59 +1,59 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: puppeteer
+  name: sorcerer
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: puppeteer
+        app: sorcerer
     spec:
       containers:
-      - name: puppeteer
-        image: gcr.io/${PROJECT_ID}/puppeteer:${REVISION_ID}
+      - name: sorcerer
+        image: gcr.io/${PROJECT_ID}/sorcerer:${REVISION_ID}
         env:
-          - name: PUPPETEER_SLACK_TOKEN
+          - name: SORCERER_SLACK_TOKEN
             valueFrom:
               secretKeyRef:
-                name: puppeteer
+                name: sorcerer
                 key: slack-token
-          - name: PUPPETEER_GITHUB_OAUTH_TOKEN
+          - name: SORCERER_GITHUB_OAUTH_TOKEN
             valueFrom:
               secretKeyRef:
-                name: puppeteer
+                name: sorcerer
                 key: github-oauth-token
-          - name: PUPPETEER_AWS_ACCESS_KEY
+          - name: SORCERER_AWS_ACCESS_KEY
             valueFrom:
               secretKeyRef:
-                name: puppeteer
+                name: sorcerer
                 key: aws-access-key
-          - name: PUPPETEER_AWS_SECRET_KEY
+          - name: SORCERER_AWS_SECRET_KEY
             valueFrom:
               secretKeyRef:
-                name: puppeteer
+                name: sorcerer
                 key: aws-secret-key
-          - name: PUPPETEER_DYNAMODB_ENDPOINT
+          - name: SORCERER_DYNAMODB_ENDPOINT
             valueFrom:
               secretKeyRef:
-                name: puppeteer
+                name: sorcerer
                 key: dynamodb-endpoint
-          - name: PUPPETEER_PUBSUB_SUBSCRIPTION_NAME
-            value: "puppeteer-cloud-builds"
-          - name: PUPPETEER_K8S_DOMAIN
+          - name: SORCERER_PUBSUB_SUBSCRIPTION_NAME
+            value: "sorcerer-cloud-builds"
+          - name: SORCERER_K8S_DOMAIN
             valueFrom:
               secretKeyRef:
-                name: puppeteer
+                name: sorcerer
                 key: k8s-domain
-          - name: PUPPETEER_K8S_INGRESS_NAME
+          - name: SORCERER_K8S_INGRESS_NAME
             valueFrom:
               secretKeyRef:
-                name: puppeteer
+                name: sorcerer
                 key: k8s-ingress-name
-          - name: PUPPETEER_DNS_ZONE
+          - name: SORCERER_DNS_ZONE
             valueFrom:
               secretKeyRef:
-                name: puppeteer
+                name: sorcerer
                 key: dns-zone
         resources:
           requests:
