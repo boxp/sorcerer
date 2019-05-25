@@ -10,7 +10,7 @@
                  [org.julienxx/clj-slack "0.5.5"]
                  [slack-rtm "0.1.5"]
                  [cheshire "5.7.1"]
-                 [circleci/clj-yaml "0.5.5"]
+                 [circleci/clj-yaml "0.6.0"]
                  [tentacles "0.5.1"]
                  [org.clojure/tools.namespace "0.2.10"]
                  [com.amazonaws/aws-java-sdk-dynamodb "1.11.95"]
