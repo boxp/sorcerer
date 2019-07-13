@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/core.async "0.4.474"]
                  [environ "1.1.0"]
-                 [com.stuartsierra/component "0.3.2"]
+                 [com.stuartsierra/component "0.4.0"]
                  [org.julienxx/clj-slack "0.5.5"]
                  [slack-rtm "0.1.5"]
                  [cheshire "5.7.1"]
