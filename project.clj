@@ -16,7 +16,7 @@
                  [com.amazonaws/aws-java-sdk-dynamodb "1.11.95"]
                  [com.taoensso/faraday "1.8.0"
                   :exclusions [[com.amazonaws/aws-java-sdk-dynamodb]]]
-                 [io.fabric8/kubernetes-client "2.5.6"]
+                 [io.fabric8/kubernetes-client "2.6.3"]
                  [io.fabric8/kubernetes-model "1.1.0"]
                  [com.google.guava/guava "22.0"]
                  [com.google.auth/google-auth-library-oauth2-http "0.6.1"]
