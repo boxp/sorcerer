@@ -8,7 +8,7 @@
                  [environ "1.1.0"]
                  [com.stuartsierra/component "0.3.2"]
                  [org.julienxx/clj-slack "0.5.5"]
-                 [slack-rtm "0.1.5"]
+                 [slack-rtm "0.1.7"]
                  [cheshire "5.7.1"]
                  [circleci/clj-yaml "0.5.5"]
                  [tentacles "0.5.1"]
