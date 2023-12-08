@@ -28,7 +28,7 @@
                  [com.google.apis/google-api-services-cloudbuild "v1-rev609-1.22.0"
                   :exclusions [com.google.guava/guava
                                com.google.guava/guava-jdk5]]
-                 [com.google.apis/google-api-services-dns "v1-rev44-1.22.0"]]
+                 [com.google.apis/google-api-services-dns "v1-rev20231130-2.0.0"]]
   :profiles
   {:dev {:source-paths ["src" "dev"]}
    :uberjar {:main sorcerer.system}})
